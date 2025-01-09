@@ -1,0 +1,5 @@
+--> npm init -y
+--> changes(package.json) "main" as "main.js" (as per wish)
+--> npm i express mongoose express-session ejs multer dotenv
+--> npm i -D nodemon
+--> add(package.json - "scripts") "start": "nodemon app.js" (as per wish)
