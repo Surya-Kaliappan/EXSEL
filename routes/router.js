@@ -189,8 +189,6 @@ router.get('/change', (req, res) => {
     }
 });
 
-//hello
-
 console.log(`Server Started at http://${getIp()}:${process.env.PORT}`);
 
 module.exports = router;
