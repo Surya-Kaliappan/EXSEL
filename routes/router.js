@@ -7,6 +7,8 @@ const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const os = require('os');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 // image upload
 
@@ -25,7 +27,11 @@ const os = require('os');
 
 // Insert Data in Database
 
+router.use(express.urlencoded({extended: true}));
+router.use(express.json());
+router.use(cookieParser());
 const head_name = process.env.HEAD;
+const secret_key = 'something';
 
 router.post('/register', async (req, res) => {
     try{
@@ -54,7 +60,18 @@ router.post('/auth', async (req,res) => {
             return res.status(404).send("User not found...");
         }
         if(await bcrypt.compare(pass, user.pass)) {
-            res.status(200).send("Login Successful...");
+            // res.status(200).send("Login Successful...");
+            const token = jwt.sign(
+                { userId : user._id }, secret_key,
+                { expiresIn: '1m'}
+            );
+            res.cookie('json', token, {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'strict',
+                maxAge: 60*1000,
+            });
+            res.redirect('/dashboard');
         } else {
             res.status(401).send("Incorrect password...");
         }
@@ -123,7 +140,6 @@ async function sendEmail(recipientEmail, link) {
         };
 
         const info = await transporter.sendMail(mailOptions);
-        console.log('Email send: %s',info.messageId); 
     } catch (error) {
         console.log('Error sending email: ',error);
     }
@@ -160,8 +176,31 @@ function decryptLinktData(encryptedData){
     return JSON.parse(decrypted);
 }
 
+function authToken(req, res, next){
+    const token = req.cookies.json;
+    console.log(token);
+    if(!token) {
+        return res.status(401).send('Access denied, Please log in...');
+    }
+    try{
+        const decode = jwt.verify(token, secret_key);
+        req.auth_user = decode;
+        next();
+    } catch (error) {
+        res.status(403).send('Invalid or expired token');
+    }
+}
+
 router.get("/", (req, res) => {
+    if(req.cookies.json){
+        return res.redirect('/dashboard');
+    }
     res.render('index', {head: head_name,title: "Login Page"});
+});
+
+router.get("/logout", (req, res) => {
+    res.clearCookie('json');
+    res.redirect('/');
 });
 
 router.get("/register", (req, res) => {
@@ -187,6 +226,10 @@ router.get('/change', (req, res) => {
         console.log(error);
         res.status(400).send("Invalid or Corrupted link...");
     }
+});
+
+router.get('/dashboard', authToken, (req, res) => {
+    res.render('dashboard', {title: "Dashboard"});
 });
 
 console.log(`Server Started at http://${getIp()}:${process.env.PORT}`);
