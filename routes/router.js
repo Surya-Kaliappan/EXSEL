@@ -35,7 +35,7 @@ const head_name = process.env.HEAD;
 
 router.post('/register', async (req, res) => {
     try{
-        const salt = await bcrypt.genSalt(process.env.SALT);
+        const salt = await bcrypt.genSalt(10);
         const user = new User({
             name: req.body.name,
             email: req.body.email,
@@ -63,14 +63,14 @@ router.post('/auth', async (req,res) => {
         }
         if(await bcrypt.compare(pass, user.pass)) {
             const token = jwt.sign(
-                { userId : user._id }, process.env.BYTPASS,
-                { expiresIn: '1m'}
+                {user}, process.env.BYTPASS,
+                { expiresIn: process.env.JWTEXP}
             );
             res.cookie('json', token, {
                 httpOnly: true,
                 secure: false,
                 sameSite: 'strict',
-                maxAge: 60*1000,
+                maxAge: process.env.COOEXP * 60 * 60 * 1000,
             });
             res.redirect('/dashboard');
         } else {
@@ -103,7 +103,7 @@ router.post("/setpass", async (req, res) => {
         return res.send("Password Mismatch...");
     }
     try{
-        const salt = await bcrypt.genSalt(process.env.SALT);
+        const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt)
         const updateUser = await User.findByIdAndUpdate(req.session.user,
             { pass : hashedPassword},
@@ -229,7 +229,9 @@ router.get('/change', (req, res) => {
 });
 
 router.get('/dashboard', authToken, (req, res) => {
-    res.render('dashboard', {title: "Dashboard"});
+    const user = req.auth_user.user;
+    console.log(req.auth_user.user);
+    res.render('dashboard', {title: "Dashboard", name: user.name, role: user.role});
 });
 
 console.log(`Server Started at http://${getIp()}:${process.env.PORT}`);

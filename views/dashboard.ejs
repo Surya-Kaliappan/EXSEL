@@ -13,8 +13,15 @@
             <h2>Smart Agri Connectors</h2>
             <ul>
                 <li><a href="profile.html">profile</a></li>
-                <li><a href="product.html">Products</a></li>
+                <!-- <li><a href="product.html">Products</a></li> -->
                 <!-- <li><a href="#settings">Settings</a></li> -->
+                <% if (role === 'farmer') { %>
+                    <li><a href="#">Sell Product</a></li>
+                    <li><a href="#">Give Rent</a></li>
+                    <li><a href="#">Take Rent</a></li>
+                <% } else if (role === 'customer') { %>
+                    <li><a href="#">Buy Product</a></li>
+                <% } %>
                 <li><a href="change_password.html">Change Password</a></li>
                 <li class="logout"><a href="/logout">Logout</a></li>
             </ul>
@@ -23,7 +30,7 @@
         <!-- Main Content Area -->
         <main class="main-content">
             <header class="header">
-                <h1>Welcome <span id="name">...</span>,</h1>
+                <h1>Welcome <%= name %>,</h1>
                 <p>Here's your overview for today.</p>
             </header>
 
