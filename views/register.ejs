@@ -20,20 +20,16 @@
                     <li><a href="#" class="link">Help</a></li>
                 </ul>
             </div>
-            <!-- <div class="nav-button">
-                <button class="btn white-btn" id="loginBtn" onclick="login()">Sign In</button>
-                <button class="btn" id="registerBtn" onclick="register()">Sign Up</button>
-            </div> -->
             <div class="nav-menu-btn">
                 <i class="bx bx-menu" onclick="myMenuFunction()"></i>
             </div>
         </nav>
         <section>
-            <form action="/register" method="post" id="register">
+            <div class="user_detail" id="detail">
                 <h1>Register</h1>
                 <div class="inputbox">
                     <ion-icon name="user-outline"></ion-icon>
-                    <input type="text" name="name" required>
+                    <input type="text" id="name" name="name" form="myform" required>
                     <div class="label">
                         <i class="bx bx-id-card"></i>
                         <label for="">Full Name</label>
@@ -41,7 +37,7 @@
                 </div>
                 <div class="inputbox">
                     <ion-icon name="mail-outline"></ion-icon>
-                    <input type="email" name="email" required>
+                    <input type="email" id="email" name="email" form="myform" required>
                     <div class="label">
                         <i class="bx bx-user"></i>
                         <label for="">Email</label>
@@ -49,17 +45,47 @@
                 </div>
                 <div class="inputbox">
                     <ion-icon name="lock-closed-outline"></ion-icon>
-                    <input type="password" name="pass" id="pass" required>
+                    <input type="password" id="pass" name="pass" form="myform" required>
                     <div class="label">
                         <i class="bx bx-lock-alt"></i>
                         <label for="">Password</label>
                     </div>
                 </div>
-                <button type="submit">Register</button>
+            <button onclick="validate()">click</button>
+            <div class="register">
+                <p>Already have an account?&nbsp;<a href="/">Login</a></p>
+            </div>
+            </div>
+            <div class="user_role" id="role">
+            <form id="myform" action="/register" method="post" autocomplete="off">
+                <h1>Role</h1>
+                <div class="inputbox">
+                    <ion-icon name="user-outline"></ion-icon>
+                    <input type="tel" name="phone" required>
+                    <div class="label">
+                        <i class="bx bx-id-card"></i>
+                        <label for="">Phone Number</label>
+                    </div>
+                </div>
+                <div class="inputbox">
+                    <ion-icon name="mail-outline"></ion-icon>
+                    <!-- <input type="text" name="role" required> -->
+                     <select name="role" id="roleAdd" required>
+                        <option value="none" selected disabled>Select Role</option>
+                        <option value="customer">Customer</option>
+                        <option value="farmer">Farmer</option>
+                     </select>
+                    <div class="label">
+                        <i class="bx bx-user"></i>
+                        <label for="">Role</label>
+                    </div>
+                </div>
+                <button type="submit" id="submit" disabled>Register</button>
                 <div class="register">
                     <p>Already have an account?&nbsp;<a href="/">Login</a></p>
                 </div>
             </form>
+            </div>
         </section>
     </div>
     <script>
@@ -72,6 +98,27 @@
             } else {
                 i.className = "nav-menu";
             }
+        }
+
+        function validate(){
+            const email = document.getElementById("email").value.trim();
+            const name = document.getElementById("name").value.trim();
+            const pass = document.getElementById("pass").value.trim();
+            const btn = document.getElementById("submit");
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if(emailRegex.test(email) && email!="" && pass!="" && name!=""){
+                next_state();
+                btn.disabled = false;
+            }
+        }
+
+        function next_state() {
+            var x = document.getElementById("detail");
+            var y = document.getElementById("role");
+            x.style.left = "-400px";
+            y.style.right = "25px";
+            x.style.opacity = 0;
+            y.style.opacity = 1;
         }
         
         window.addEventListener('pageshow', (event) => {

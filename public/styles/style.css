@@ -15,7 +15,6 @@ body {
     /* background-image: url(https://user-images.githubusercontent.com/13468728/233847739-219cb494-c265-4554-820a-bd3424c59065.jpg); */
     background-image: url(/img/background.png);
     background-repeat: no-repeat;
-    /* background-position: center; */
     background-size: cover;
     background-attachment: fixed;
     overflow: hidden;
@@ -90,7 +89,8 @@ body {
 section {
     top: 50px;
     position: relative;
-    max-width: 600px;
+    width: 450px;
+    height: 75vh;
     background-color: rgba(1, 1, 1, 0.2);
     border: 2px solid rgba(255, 255, 255, 0.468);
     border-radius: 20px;
@@ -99,6 +99,25 @@ section {
     justify-content: center;
     align-items: center;
     padding: 2rem 3rem;
+    overflow: hidden;
+    z-index: 2;
+}
+
+.user_detail{
+    position: absolute;
+    left: 25px;
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+    transition: .5s ease-in-out;
+}
+.user_role{
+    position: absolute;
+    right: -450px;
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+    transition: .5s ease-in-out;
 }
 
 h1 {
@@ -110,7 +129,7 @@ h1 {
 .inputbox {
     position: relative;
     margin: 30px 0;
-    max-width: 310px;
+    /* max-width: 310px; */
     border-bottom: 2px solid #fff;
 }
 
@@ -126,7 +145,9 @@ h1 {
 }
 
 input:focus ~ .label, 
-input:valid ~ .label {
+input:valid ~ .label,
+select:focus ~ .label,
+select:valid ~ .label {
     top: -5px;
 }
 
@@ -140,7 +161,8 @@ input[type="email"]:focus{
     transition: all 0.5s ease-in-out;
 }
 
-.inputbox input {
+.inputbox input,
+.inputbox select  {
     width: 100%;
     height: 60px;
     background: transparent;
@@ -149,6 +171,18 @@ input[type="email"]:focus{
     font-size: 1rem;
     padding: 0 5px 0 5px;
     color: #fff;
+    appearance: none;
+}
+
+/* .inputbox select {
+    background-position: calc(100% - 10px) center, calc(100% - 20px) center;
+    background-repeat: no-repeat, no-repeat;
+    background-size: 10px 10px, 10px 10px;
+    cursor: pointer;
+} */
+
+.inputbox select option {
+    color: black;
 }
 
 .inputbox ion-icon {
@@ -214,11 +248,6 @@ button:hover {
     body{
         padding: 10px;
     }
-    section{
-        top: 0px;
-        width: 100%;
-        padding: 2rem 1.5rem;
-    }
     .nav-logo p{
         color: white;
         font-size: 20px;
@@ -259,5 +288,18 @@ button:hover {
     }
     .nav-menu-btn i:hover{
         background: rgba(255, 255, 255, 0.15);
+    }
+}
+
+@media only screen and (max-width: 560px){
+    section{
+        top: 0px;
+        width: 330px;
+    }
+    .user_detail {
+        width: 280px;
+    }
+    .user_role {
+        width: 280px;
     }
 }

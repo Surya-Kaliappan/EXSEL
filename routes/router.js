@@ -31,15 +31,17 @@ router.use(express.urlencoded({extended: true}));
 router.use(express.json());
 router.use(cookieParser());
 const head_name = process.env.HEAD;
-const secret_key = 'something';
+// const secret_key = 'something';
 
 router.post('/register', async (req, res) => {
     try{
-        const salt = await bcrypt.genSalt(10);
+        const salt = await bcrypt.genSalt(process.env.SALT);
         const user = new User({
             name: req.body.name,
             email: req.body.email,
             pass: await bcrypt.hash(req.body.pass, salt),
+            phone: req.body.phone,
+            role: req.body.role
         });
 
         await user.save();
@@ -48,7 +50,7 @@ router.post('/register', async (req, res) => {
         res.redirect('/');
     } catch (error) {
         // res.json({});
-        console.log(error.message);
+        console.log(error);
     }
 });
 
@@ -60,9 +62,8 @@ router.post('/auth', async (req,res) => {
             return res.status(404).send("User not found...");
         }
         if(await bcrypt.compare(pass, user.pass)) {
-            // res.status(200).send("Login Successful...");
             const token = jwt.sign(
-                { userId : user._id }, secret_key,
+                { userId : user._id }, process.env.BYTPASS,
                 { expiresIn: '1m'}
             );
             res.cookie('json', token, {
@@ -102,7 +103,7 @@ router.post("/setpass", async (req, res) => {
         return res.send("Password Mismatch...");
     }
     try{
-        const salt = await bcrypt.genSalt(10);
+        const salt = await bcrypt.genSalt(process.env.SALT);
         const hashedPassword = await bcrypt.hash(password, salt)
         const updateUser = await User.findByIdAndUpdate(req.session.user,
             { pass : hashedPassword},
@@ -178,12 +179,11 @@ function decryptLinktData(encryptedData){
 
 function authToken(req, res, next){
     const token = req.cookies.json;
-    console.log(token);
     if(!token) {
         return res.status(401).send('Access denied, Please log in...');
     }
     try{
-        const decode = jwt.verify(token, secret_key);
+        const decode = jwt.verify(token, process.env.BYTPASS);
         req.auth_user = decode;
         next();
     } catch (error) {
