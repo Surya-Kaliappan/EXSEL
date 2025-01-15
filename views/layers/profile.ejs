@@ -1,0 +1,51 @@
+<main class="main-content">
+    <header class="header">
+        <h1>User Profile</h1>
+    </header>
+
+    <!-- Profile Details Section -->
+    <div class="main-board">
+        <section class="profile-details">
+            <div class="profile-item">
+                <strong>Name:</strong>
+                <span><%= name %></span>
+            </div>
+            <div class="profile-item">
+                <strong>Email:</strong>
+                <span><%= email %></span>
+            </div>
+            <div class="profile-item">
+                <strong>Phone:</strong>
+                <span><%= phone %></span>
+            </div>
+        
+        </section>
+    </div>
+
+    <!-- Edit Profile Button -->
+    <div class="edit-profile">
+        <button id="editProfile">Edit Profile</button>
+    </div>
+
+    <!-- Editable Form (Hidden by Default) -->
+    <div class="main-board">
+        <section class="edit-profile-form" id="editProfileForm" style="display: none;">
+            <form action="/update_profile" method="POST" autocomplete="off" onsubmit="return checkEmail(event);">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" value="<%= name %>" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" value="<%= email %>" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone:</label>
+                    <input type="text" id="phone" name="phone" value="<%= phone %>" required>
+                </div>
+            
+                <button type="submit">Save Changes</button>
+            </form>
+        </section>
+    </div>
+</main>

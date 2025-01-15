@@ -238,9 +238,10 @@ button:hover {
     text-decoration: none;
     color: #fff;
     font-weight: 600;
+    cursor: pointer;
 }
 
-.register p a:hover {
+.register p a:hover, .register a:hover {
     text-decoration: underline;
 }
 

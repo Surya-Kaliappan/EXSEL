@@ -51,7 +51,7 @@
                         <label for="">Password</label>
                     </div>
                 </div>
-            <button onclick="validate()">click</button>
+            <button onclick="validate()">Next</button>
             <div class="register">
                 <p>Already have an account?&nbsp;<a href="/">Login</a></p>
             </div>
@@ -82,7 +82,7 @@
                 </div>
                 <button type="submit" id="submit" disabled>Register</button>
                 <div class="register">
-                    <p>Already have an account?&nbsp;<a href="/">Login</a></p>
+                    <a onclick="back_state()">Previous</a>
                 </div>
             </form>
             </div>
@@ -112,13 +112,21 @@
             }
         }
 
+        var x = document.getElementById("detail");
+        var y = document.getElementById("role");
+
         function next_state() {
-            var x = document.getElementById("detail");
-            var y = document.getElementById("role");
             x.style.left = "-400px";
             y.style.right = "25px";
             x.style.opacity = 0;
             y.style.opacity = 1;
+        }
+
+        function back_state() {
+            x.style.left = "25px";
+            y.style.right = "-400px";
+            x.style.opacity = 1;
+            y.style.opacity = 0;
         }
         
         window.addEventListener('pageshow', (event) => {

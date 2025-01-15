@@ -46,8 +46,7 @@ router.post('/register', async (req, res) => {
 
         await user.save();
         // req.session.message = {};
-        console.log("Successfully Registered...");
-        res.redirect('/');
+        res.status(200).send("Successfully Registered... <a href='/'>Click to Login</a>")
     } catch (error) {
         // res.json({});
         console.log(error);
@@ -59,11 +58,11 @@ router.post('/auth', async (req,res) => {
         const {email, pass} = req.body; 
         const user = await User.findOne({ email }).exec();
         if (!user) {
-            return res.status(404).send("User not found...");
+            return res.status(404).send("User not found... <a href='/'>Back to Login</a>");
         }
         if(await bcrypt.compare(pass, user.pass)) {
             const token = jwt.sign(
-                {user}, process.env.BYTPASS,
+                {userId: user._id}, process.env.BYTPASS,
                 { expiresIn: process.env.JWTEXP}
             );
             res.cookie('json', token, {
@@ -72,12 +71,12 @@ router.post('/auth', async (req,res) => {
                 sameSite: 'strict',
                 maxAge: process.env.COOEXP * 60 * 60 * 1000,
             });
-            res.redirect('/dashboard');
+            res.redirect('/dashboard/home');
         } else {
-            res.status(401).send("Incorrect password...");
+            res.status(401).send("Invalid Password... <a href='/'>Back to Login</a>");
         }
     } catch (error) {
-        console.log(error.message);
+        console.log(error);
     }
 });
 
@@ -86,32 +85,32 @@ router.post("/reset", async (req, res) => {
     const user = await User.findOne({ email : email }).exec();
     if(user){
         const encryptedData = encryptLinkData(user._id);
-        const link = `http://${getIp()}:${process.env.PORT}/change?step=${encodeURIComponent(encryptedData)}`;
-        await sendEmail(email, link);
+        const link = `${req.protocol}://${req.headers.host}/change?step=${encodeURIComponent(encryptedData)}`;
+        // await sendEmail(email, link);
         console.log(`Reset Link: ${link}`);
-        res.redirect('/');
+        // res.redirect('/');
+        res.status(200).send("Link has been sented to the Registered Email. <a href='/'>Click to Login</a>")
     } else {
-        return res.status(400).send("No Email has registered...");
+        return res.status(400).send("No Email has registered... <a href='/'>Back to Login</a>");
     }   
 });
 
 router.post("/setpass", async (req, res) => {
-
     const password = req.body.pass;
     const conf_password = req.body.conf_pass;
     if(password != conf_password){
-        return res.send("Password Mismatch...");
+        return res.send("Password Mismatch... <a href='/'>Back to Login</a>");
     }
     try{
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt)
         const updateUser = await User.findByIdAndUpdate(req.session.user,
-            { pass : hashedPassword},
-            { new : true}
+            { pass : hashedPassword },
+            { new : true }
         );
 
         if(!updateUser) {
-            return res.status(404).send("User not found.");
+            return res.status(404).send("Session Expired. <a href='/'>Click to Back</a>");
         }
 
         res.status(200).send("Password updated successfully...");
@@ -121,6 +120,35 @@ router.post("/setpass", async (req, res) => {
     }
 
 });
+
+router.post("/update_profile", authToken, async (req, res) => {
+    try{
+        const updateUser = await User.findByIdAndUpdate(req.auth_user._id,
+            { 
+                name : req.body.name.trim(),
+                email : req.body.email.trim(),
+                phone : req.body.phone.trim()
+            },
+            { new : true }
+        );
+        if(!updateUser) {
+            return res.status(404).send("User not found.");
+        }
+        return res.status(200).send("Profile Updated Successfully...");
+    } catch (error) {
+        console.log(error);
+        res.send("Updating Profile has been failed due to server error...");
+    }
+});
+
+async function getUser(id) {
+    try{
+        const user = await User.findById(id);
+        return user;
+    } catch (error) {
+        console.log(error);
+    }
+}
 
 async function sendEmail(recipientEmail, link) {
     try{
@@ -136,7 +164,8 @@ async function sendEmail(recipientEmail, link) {
             from: '"Smart Agri Connector" <noreply@smartariconnectoru>',
             to: recipientEmail,
             subject: 'Reset Password',
-            html: `<p>Click the link below to reset your password:</p>
+            html: `<p>The Like could be expire in 5 minutes.
+            Click the link below to reset your password:</p>
                    <a href="${link}">${link}</a>`,
         };
 
@@ -161,7 +190,7 @@ const secretKey = crypto.randomBytes(32).toString("hex").substring(0,32);
 const iv = crypto.randomBytes(16);
 
 function encryptLinkData(input){
-    const data = JSON.stringify({input, exp: Date.now() + 1 * 60 * 1000});  //Link Expiry
+    const data = JSON.stringify({input, exp: Date.now() + 5 * 60 * 1000});  //Link Expiry
     const cipher = crypto.createCipheriv("aes-256-cbc", secretKey, iv);
     let encrypted = cipher.update(data, "utf8", "hex");
     encrypted += cipher.final("hex");
@@ -177,23 +206,25 @@ function decryptLinktData(encryptedData){
     return JSON.parse(decrypted);
 }
 
-function authToken(req, res, next){
+async function authToken(req, res, next){
     const token = req.cookies.json;
     if(!token) {
-        return res.status(401).send('Access denied, Please log in...');
+        return res.status(401).send('Access denied, Please <a href="/logout">log in</a>...');
     }
     try{
         const decode = jwt.verify(token, process.env.BYTPASS);
-        req.auth_user = decode;
+        // console.log(await getUser(decode.userId));
+        req.auth_user = await getUser(decode.userId);
         next();
     } catch (error) {
-        res.status(403).send('Invalid or expired token');
+        console.log(error);
+        res.status(403).send('Invalid or expired token, <a href="/logout">Click to Login</a>');
     }
 }
 
 router.get("/", (req, res) => {
     if(req.cookies.json){
-        return res.redirect('/dashboard');
+        return res.redirect('/dashboard/home');
     }
     res.render('index', {head: head_name,title: "Login Page"});
 });
@@ -212,11 +243,11 @@ router.get("/reset", (req, res) => {
 });
 
 router.get('/change', (req, res) => {
-    const encryptedData = req.query.step;
     try{
+        const encryptedData = req.query.step;
         const decryptedData = decryptLinktData(encryptedData);
         if (decryptedData.exp < Date.now()) {
-            return res.status(400).send("The Link has Expired...");
+            return res.status(400).send("The Link has Expired... <a href='/'>Click to Login</a>");
         }
         const id = decryptedData.input;
         req.session.user = id;
@@ -228,10 +259,36 @@ router.get('/change', (req, res) => {
     }
 });
 
-router.get('/dashboard', authToken, (req, res) => {
-    const user = req.auth_user.user;
-    console.log(req.auth_user.user);
-    res.render('dashboard', {title: "Dashboard", name: user.name, role: user.role});
+router.get('/update_password', authToken, (req, res) => {
+    try{
+        const encryptedData = encryptLinkData(req.auth_user._id);
+        res.redirect(`/change?step=${encodeURIComponent(encryptedData)}`);
+    } catch (error) {
+        console.log(error);
+        res.send('Unable to connect.. <a href="/dashboard/home">back to the dashboard</a>');
+    }
+});
+
+router.get('/dashboard/home', authToken, async (req, res) => {
+    const user = req.auth_user;
+    res.render('dashboard', {
+        title: "Dashboard", 
+        name: user.name, 
+        role: user.role, 
+        board: "home"
+    });
+});
+
+router.get('/dashboard/profile', authToken, (req, res) => {
+    const user = req.auth_user;
+    res.render('dashboard', {
+        title: "Dashboard", 
+        name: user.name, 
+        email: user.email, 
+        phone: user.phone,
+        role: user.role, 
+        board: "profile"
+    });
 });
 
 console.log(`Server Started at http://${getIp()}:${process.env.PORT}`);
