@@ -8,15 +8,15 @@
         <section class="profile-details">
             <div class="profile-item">
                 <strong>Name:</strong>
-                <span><%= name %></span>
+                <span><%= user.name %></span>
             </div>
             <div class="profile-item">
                 <strong>Email:</strong>
-                <span><%= email %></span>
+                <span><%= user.email %></span>
             </div>
             <div class="profile-item">
                 <strong>Phone:</strong>
-                <span><%= phone %></span>
+                <span><%= user.phone %></span>
             </div>
         
         </section>
@@ -33,15 +33,15 @@
             <form action="/update_profile" method="POST" autocomplete="off" onsubmit="return checkEmail(event);">
                 <div class="form-group">
                     <label for="name">Name:</label>
-                    <input type="text" id="name" name="name" value="<%= name %>" required>
+                    <input type="text" id="name" name="name" value="<%= user.name %>" required>
                 </div>
                 <div class="form-group">
                     <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" value="<%= email %>" required>
+                    <input type="email" id="email" name="email" value="<%= user.email %>" required>
                 </div>
                 <div class="form-group">
                     <label for="phone">Phone:</label>
-                    <input type="text" id="phone" name="phone" value="<%= phone %>" required>
+                    <input type="text" id="phone" name="phone" value="<%= user.phone %>" required>
                 </div>
             
                 <button type="submit">Save Changes</button>
@@ -49,3 +49,37 @@
         </section>
     </div>
 </main>
+<script>
+    // JavaScript for toggling the Edit Profile form
+    document.getElementById("editProfile").addEventListener("click",() => {
+        const form = document.getElementById("editProfileForm");
+        form.style.display = "block";
+        // form.style.display = form.style.display === "none" ? "block" : "none";
+        document.getElementById("editProfile").style.display = "none";
+    });
+
+    function validateEmail(email){
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    function checkEmail(event){
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const phone = document.getElementById("phone").value.trim();
+        if(!validateEmail(email)){
+            event.preventDefault();
+            alert("Invalid Email")
+            return false;
+        } else if (!name){
+            event.preventDefault();
+            alert("Fill the Name");
+            return false;
+        } else if (!phone){
+            event.preventDefault();
+            alert("Fill the Phone Number");
+            return false;
+        }
+        return true;
+    }
+</script>

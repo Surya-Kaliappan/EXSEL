@@ -9,21 +9,22 @@ const crypto = require('crypto');
 const os = require('os');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
+const fs = require("fs");
 
 // image upload
 
-// var storage = multer.diskStorage({
-//     destination: function(req, file, cb) {
-//         cb(null, './uploads');
-//     },
-//     filename: function(req, file, cb) {
-//         cb(null, file.fieldname + "_" + Date.now() + "_" + file.originalname);
-//     },
-// });
+var storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, './public/uploads');
+    },
+    filename: function(req, file, cb) {
+        cb(null, file.fieldname + "_" + Date.now() + "_" + file.originalname);
+    },
+});
 
-// var upload = multer({
-//     storage: storage,
-// }).single('image');  // 'image' is a 'name' field from input tag
+var upload = multer({
+    storage: storage,
+}).single('image');  // 'image' is a 'name' field from input tag
 
 // Insert Data in Database
 
@@ -32,6 +33,32 @@ router.use(express.json());
 router.use(cookieParser());
 const head_name = process.env.HEAD;
 // const secret_key = 'something';
+
+router.post('/upload_photo', authToken, upload, async (req, res) => {
+    try{
+        if(req.file){
+            new_image = req.file.filename;
+            const updatePhoto = await User.findByIdAndUpdate(req.auth_user._id,
+                { photo : new_image },
+                { new : true }
+            );
+            if(!updatePhoto){
+                return res.status(401).send("No User found... <a href='/dashboard/home'>Click to Dashboard</a>")
+            }
+            res.status(200).send("Photo has been Updated... <a href='/dashboard/home'>Click to Dashboard</a>")
+            if(req.auth_user.photo){
+                try{
+                    fs.unlinkSync("./public"+req.body.old_image);
+                } catch (error) {
+                    console.log(error);
+                }
+            } 
+        }
+    } catch(error) {
+        console.log(error);
+
+    }
+});
 
 router.post('/register', async (req, res) => {
     try{
@@ -86,9 +113,9 @@ router.post("/reset", async (req, res) => {
     if(user){
         const encryptedData = encryptLinkData(user._id);
         const link = `${req.protocol}://${req.headers.host}/change?step=${encodeURIComponent(encryptedData)}`;
-        // await sendEmail(email, link);
+        console.log(req.headers);
+        await sendEmail(email, link);
         console.log(`Reset Link: ${link}`);
-        // res.redirect('/');
         res.status(200).send("Link has been sented to the Registered Email. <a href='/'>Click to Login</a>")
     } else {
         return res.status(400).send("No Email has registered... <a href='/'>Back to Login</a>");
@@ -113,7 +140,7 @@ router.post("/setpass", async (req, res) => {
             return res.status(404).send("Session Expired. <a href='/'>Click to Back</a>");
         }
 
-        res.status(200).send("Password updated successfully...");
+        res.status(200).send("Password updated successfully... <a href='/dashboard/home'>Click to Dashboard</a>");
     } catch(error) {
         console.log(error);
         res.status(404).send("Update Process Failed...");
@@ -134,7 +161,7 @@ router.post("/update_profile", authToken, async (req, res) => {
         if(!updateUser) {
             return res.status(404).send("User not found.");
         }
-        return res.status(200).send("Profile Updated Successfully...");
+        return res.status(200).send("Profile Updated Successfully... <a href='/dashboard/profile'>Click to Dashboard</a>");
     } catch (error) {
         console.log(error);
         res.send("Updating Profile has been failed due to server error...");
@@ -190,7 +217,7 @@ const secretKey = crypto.randomBytes(32).toString("hex").substring(0,32);
 const iv = crypto.randomBytes(16);
 
 function encryptLinkData(input){
-    const data = JSON.stringify({input, exp: Date.now() + 5 * 60 * 1000});  //Link Expiry
+    const data = JSON.stringify({input, exp: Date.now() + process.env.PASSLINKEXP * 60 * 1000});  //Link Expiry
     const cipher = crypto.createCipheriv("aes-256-cbc", secretKey, iv);
     let encrypted = cipher.update(data, "utf8", "hex");
     encrypted += cipher.final("hex");
@@ -251,7 +278,7 @@ router.get('/change', (req, res) => {
         }
         const id = decryptedData.input;
         req.session.user = id;
-        req.session.cookie.maxAge = 1 * 60 * 1000;
+        req.session.cookie.maxAge = process.env.PASSPAGEEXP * 60 * 1000;
         res.render('password', {head: head_name, title: "Recover Password"});
     } catch(error) {
         console.log(error);
@@ -272,23 +299,36 @@ router.get('/update_password', authToken, (req, res) => {
 router.get('/dashboard/home', authToken, async (req, res) => {
     const user = req.auth_user;
     res.render('dashboard', {
-        title: "Dashboard", 
-        name: user.name, 
-        role: user.role, 
-        board: "home"
+        title: "Dashboard", user, board: "home"
     });
 });
 
 router.get('/dashboard/profile', authToken, (req, res) => {
     const user = req.auth_user;
     res.render('dashboard', {
-        title: "Dashboard", 
-        name: user.name, 
-        email: user.email, 
-        phone: user.phone,
-        role: user.role, 
-        board: "profile"
+        title: "Dashboard", user, board: "profile"
     });
+});
+
+router.get('/dashboard/photo', authToken, (req, res) => {
+    const user = req.auth_user;
+    res.render('dashboard', {
+        title: "Dasboard", user, board: "photo"
+    });
+});
+
+router.get('/dashboard/rm-ph', authToken, async (req, res) => {
+    try{
+        fs.unlinkSync("./public/uploads/"+req.auth_user.photo);
+        await User.updateOne(
+            {_id : req.auth_user._id},
+            { $unset : { photo: ""}}
+        );
+        res.redirect('/dashboard/home');
+    } catch (error) {
+        console.log(error);
+        res.status(401).send("Failed to Remove Photo.. <a href='/dashboard/home'>Click to Dashboard</a>")
+    }
 });
 
 console.log(`Server Started at http://${getIp()}:${process.env.PORT}`);

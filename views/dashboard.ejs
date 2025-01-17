@@ -19,45 +19,16 @@
             <%- include('layers/home') %>
         <% } else if (board == 'profile') { %>
             <%- include('layers/profile') %>
+        <% } else if (board == 'photo') {%>
+            <%- include('layers/photo') %>
         <% } %>
     </div>
-
     <script>
         // JavaScript for Sidebar Toggle
         document.getElementById("toggleSidebar").addEventListener("click", () => {
             const sidebar = document.getElementById("sidebar");
             sidebar.classList.toggle("open");
         });
-        // JavaScript for toggling the Edit Profile form
-        document.getElementById("editProfile").addEventListener("click",() => {
-            const form = document.getElementById("editProfileForm");
-            form.style.display = form.style.display === "none" ? "block" : "none";
-        });
-
-        function validateEmail(email){
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
-        }
-
-        function checkEmail(event){
-            const name = document.getElementById("name").value.trim();
-            const email = document.getElementById("email").value.trim();
-            const phone = document.getElementById("phone").value.trim();
-            if(!validateEmail(email)){
-                event.preventDefault();
-                alert("Invalid Email")
-                return false;
-            } else if (!name){
-                event.preventDefault();
-                alert("Fill the Name");
-                return false;
-            } else if (!phone){
-                event.preventDefault();
-                alert("Fill the Phone Number");
-                return false;
-            }
-            return true;
-        }
     </script>
 </body>
 </html>

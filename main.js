@@ -43,19 +43,6 @@ app.use((req, res, next) => {
 
 app.set('view engine', 'ejs');
 
-// app.get('/', (req, res) => {
-//     const networkInterfaces = os.networkInterfaces();
-//     for (const interfaceName in networkInterfaces) {
-//         for (const interface of networkInterfaces[interfaceName]) {
-//             if (interface.family === 'IPv4' && !interface.internal) {
-//                 console.log('Local IP Address:', interface.address);
-//                 res.send(`Local Ip Address: ${interface.address}`);
-//             }
-//         }
-//     }
-//     res.send("Working...");
-// });
-
 // router prefix
 
 app.use("", require("./routes/router"));

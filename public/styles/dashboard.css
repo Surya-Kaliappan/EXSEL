@@ -68,13 +68,40 @@ body {
 
 .sidebar ul li a:hover {
     background: rgba(255, 255, 255, 0.3);
-    
     color: #000;
 }
 
 .logout {
     background-color: #f1250f;
     border-radius: 8px;
+}
+
+/* Profile Photo Section */
+.profile-photo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.profile-photo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%; /* Circular profile photo */
+    object-fit: cover; /* Ensures image fits perfectly */
+    border: 2px solid #fff;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+}
+
+.profile-photo-container h3 {
+    color: #fff;
+    font-size: 1.2em;
+    margin: 0;
+    text-align: center;
 }
 
 /* Main Content */
@@ -194,8 +221,9 @@ body {
     width: 80%;
 }
 
-.edit-profile-form .form-group {
+.form-group {
     margin-bottom: 15px;
+    width: 100%;
 }
 
 .edit-profile-form label {
@@ -205,8 +233,7 @@ body {
     color: #34495e;
 }
 
-.edit-profile-form input,
-.edit-profile-form select {
+.edit-profile-form input {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
@@ -241,6 +268,77 @@ input[type="email"]:focus{
     transition: all 0.5s ease-in-out;
 }
 
+.profile-photo-update {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.photo-preview {
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 1);
+    backdrop-filter: blur(20px);
+}
+
+.photo-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* border-radius: 50%; */
+}
+
+.photo-preview:hover {
+    height: auto;
+    width: 80vh;
+    border-radius: 0%;
+} 
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.choose-photo-btn {
+    background-color: #16a085;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 1em;
+    margin-top: 40px;
+}
+
+.choose-photo-btn:hover {
+    background-color: #1abc9c;
+    color: #000;
+}
+
+.upload-photo-btn {
+    background-color: #2980b9;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 1em;
+    margin-top: 20px;
+}
+
+.upload-photo-btn:hover {
+    background-color: #3498db;
+    color: #000;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .dashboard-container {
@@ -261,6 +359,7 @@ input[type="email"]:focus{
     }
 
     .sidebar h2 {
+        padding: 10px;
         background: radial-gradient( #7fb872, transparent 90%)
 
     }
@@ -272,7 +371,6 @@ input[type="email"]:focus{
 
     .sidebar.open {
         transform: translateY(0);
-        top: 60px;
     }
 
     .main-content {
@@ -298,6 +396,19 @@ input[type="email"]:focus{
     .toggle-sidebar:hover {
         background-color: rgba(39,39,39, 0.6);
     }
+
+    .header {
+        background: linear-gradient(to right, rgba(39,39,39, 0.6), rgba(39,39,39, 0.3) 70%, transparent);
+    }
+
+    .photo-preview {
+        height: 200px;
+        width: 200px;
+    }
+
+    .photo-preview:hover, .photo-preview img:hover {
+        width: 40vh;
+    } 
 
     .edit-profile-form, .profile-details {
         width: 100%;
