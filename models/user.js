@@ -23,6 +23,11 @@ const userScheme = new mongoose.Schema({
     },
     photo: {
         type: String,
+    },
+    created: {
+        type: Date,
+        required: true,
+        default: Date.now,
     }
 
 });

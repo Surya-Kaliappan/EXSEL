@@ -1,0 +1,98 @@
+<main class="main-content">
+    <header class="header">
+        <h1>Product Tab</h1>
+    </header>
+    <div class="search-bar-container">
+        <input type="text" id="searchName" placeholder="Search by name...">
+        <input type="text" id="searchPrice" placeholder="Search by price...">
+    </div>
+    <!-- Product Grid -->
+    <section class="product-grid">
+        
+        <% products.forEach( product => { 
+            if(!(product.seller == user._id)) { %>
+            <div class="product-card">
+                <div class="product-photo">
+                    <img src="/uploads/<%- product.photo %>" alt="<%- product.name%>" >
+                </div>
+                <div class="product-details">
+                    <h3><%- product.name %></h3>
+                    <p>Price: <%- product.price %></p>
+                </div>
+            </div>
+        <% }}) %>
+
+        <div class="product-card">
+            <div class="product-photo">
+                <img src="/img/vegitable.png" alt="vegitable">
+            </div>
+            <div class="product-details">
+                <h3>Tomato</h3>
+                <p>Price: 50</p>
+            </div>
+        </div>
+        <div class="product-card">
+            <div class="product-photo">
+                <img src="/img/vegitable.png" alt="vegitable">
+            </div>
+            <div class="product-details">
+                <h3>Potato</h3>
+                <p>Price: 70</p>
+            </div>
+        </div>
+        <div class="product-card">
+            <div class="product-photo">
+                <img src="/img/vegitable.png" alt="vegitable">
+            </div>
+            <div class="product-details">
+                <h3>Brinjal</h3>
+                <p>Price: 40</p>
+            </div>
+        </div>
+        <div class="product-card">
+            <div class="product-photo">
+                <img src="/img/vegitable.png" alt="vegitable">
+            </div>
+            <div class="product-details">
+                <h3>Potato</h3>
+                <p>Price: 70</p>
+            </div>
+        </div>
+        <div class="product-card">
+            <div class="product-photo">
+                <img src="/img/vegitable.png" alt="vegitable">
+            </div>
+            <div class="product-details">
+                <h3>Potato</h3>
+                <p>Price: 70</p>
+            </div>
+        </div>
+        <div class="product-card">
+            <div class="product-photo">
+                <img src="/img/vegitable.png" alt="vegitable">
+            </div>
+            <div class="product-details">
+                <h3>Potato</h3>
+                <p>Price: 70</p>
+            </div>
+        </div>
+        <div class="product-card">
+            <div class="product-photo">
+                <img src="/img/vegitable.png" alt="vegitable">
+            </div>
+            <div class="product-details">
+                <h3>Potato</h3>
+                <p>Price: 70</p>
+            </div>
+        </div>
+        <div class="product-card">
+            <div class="product-photo">
+                <img src="/img/dashboard.jpg" alt="vegitable">
+            </div>
+            <div class="product-details">
+                <h3>Potato</h3>
+                <p>Price: 70</p>
+            </div>
+        </div>
+    </section>
+</main>

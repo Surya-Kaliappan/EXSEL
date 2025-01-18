@@ -13,44 +13,54 @@
             src="<%= photo %>"
             alt="Profile Photo" 
             class="profile-photo"
-            onclick="getPhotoOption('none','block')"
+            onclick="shiftPanel('options','photo-options','none','block')"
         >
         <% if(!(board === 'home')){ %>
         <h3><%= user.name %></h3> <!-- Display the user's name -->
         <% } %>
     </div>
     <h2>Smart Agri Connectors</h2>
-    <ul id="profile-options">
-        <% if (!(board === 'home')){ %>
-            <li><a href="/dashboard/home">Home</a></li>
-        <% } %>
-        <% if (!(board === 'profile')) { %>
-            <li><a href="/dashboard/profile">Profile</a></li>
-        <% } %>
-        <% if (user.role === 'farmer') { %>
-            <li><a href="#">Sell Product</a></li>
-            <li><a href="#">Give Rent</a></li>
-            <li><a href="#">Take Rent</a></li>
-        <% } else if (user.role === 'customer') { %>
-            <li><a href="#">Buy Product</a></li>
-        <% } %>
-        <li><a href="/update_password">Change Password</a></li>
-        <li class="logout"><a href="/logout">Logout</a></li>
-    </ul>
+    <% if(board === 'home' || board === 'profile') { %>
+        <ul id="options">
+            <% if (!(board === 'home')){ %>
+                <li><a href="/dashboard/home">Home</a></li>
+            <% } %>
+            <% if (!(board === 'profile')) { %>
+                <li><a href="/dashboard/profile">Profile</a></li>
+            <% } %>
+            <li><a href="/dashboard/product">Products</a></li>
+            <li><a href="/update_password">Change Password</a></li>
+            <li class="logout"><a href="/logout">Logout</a></li>
+        </ul>
+    <% } %>
     <ul id="photo-options" style="display: none;">
         <li><a href="/dashboard/photo">Change Photo</a></li>
         <% if (user.photo) { %>
         <li><a href="/dashboard/rm-ph">Remove Photo</a></li>
         <% } %>
-        <li class="logout"><a href="" onclick="getPhotoOption('block','none')">Back</a></li>
+        <li class="back"><a onclick="shiftPanel('options','photo-options','block','none')">Back</a></li>
     </ul>
+    <% if(board === 'product' || board === 'addProduct') { %>
+        <ul id="options">
+            <% if(!(board === 'product')) { %>
+                <li><a>View Products</a></li>
+            <% } %>
+            <li><a>View Orders</a></li>
+            <% if(!(board === 'addProduct')) { %>
+                <li><a href="/dashboard/product/add">Sell Product</a></li>
+            <% } %>
+            <li><a>Give Rent</a></li>
+            <li><a>Take Rent</a></li>
+            <li class="back"><a href="/dashboard/home">Back</a></li>
+        </ul>
+    <% } %>
 </aside>
 
 <script>
-    function getPhotoOption(profile, photo){
-        const profile_option = document.getElementById("profile-options");
+    function shiftPanel(current, next, profile, photo){
+        const profile_option = document.getElementById(current);
         profile_option.style.display = profile;
-        const photo_option = document.getElementById("photo-options");
+        const photo_option = document.getElementById(next);
         photo_option.style.display = photo;
     }
 </script>

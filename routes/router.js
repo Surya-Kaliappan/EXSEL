@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
+const Product = require('../models/product');
 const multer = require('multer');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
@@ -33,32 +34,6 @@ router.use(express.json());
 router.use(cookieParser());
 const head_name = process.env.HEAD;
 // const secret_key = 'something';
-
-router.post('/upload_photo', authToken, upload, async (req, res) => {
-    try{
-        if(req.file){
-            new_image = req.file.filename;
-            const updatePhoto = await User.findByIdAndUpdate(req.auth_user._id,
-                { photo : new_image },
-                { new : true }
-            );
-            if(!updatePhoto){
-                return res.status(401).send("No User found... <a href='/dashboard/home'>Click to Dashboard</a>")
-            }
-            res.status(200).send("Photo has been Updated... <a href='/dashboard/home'>Click to Dashboard</a>")
-            if(req.auth_user.photo){
-                try{
-                    fs.unlinkSync("./public"+req.body.old_image);
-                } catch (error) {
-                    console.log(error);
-                }
-            } 
-        }
-    } catch(error) {
-        console.log(error);
-
-    }
-});
 
 router.post('/register', async (req, res) => {
     try{
@@ -114,7 +89,7 @@ router.post("/reset", async (req, res) => {
         const encryptedData = encryptLinkData(user._id);
         const link = `${req.protocol}://${req.headers.host}/change?step=${encodeURIComponent(encryptedData)}`;
         console.log(req.headers);
-        await sendEmail(email, link);
+        // await sendEmail(email, link);
         console.log(`Reset Link: ${link}`);
         res.status(200).send("Link has been sented to the Registered Email. <a href='/'>Click to Login</a>")
     } else {
@@ -167,6 +142,52 @@ router.post("/update_profile", authToken, async (req, res) => {
         res.send("Updating Profile has been failed due to server error...");
     }
 });
+
+router.post('/upload_photo', authToken, upload, async (req, res) => {
+    try{
+        if(req.file){
+            new_image = req.file.filename;
+            const updatePhoto = await User.findByIdAndUpdate(req.auth_user._id,
+                { photo : new_image },
+                { new : true }
+            );
+            if(!updatePhoto){
+                return res.status(401).send("No User found... <a href='/dashboard/home'>Click to Dashboard</a>")
+            }
+            res.status(200).send("Photo has been Updated... <a href='/dashboard/home'>Click to Dashboard</a>")
+            if(req.auth_user.photo){
+                try{
+                    fs.unlinkSync("./public"+req.body.old_image);
+                } catch (error) {
+                    console.log(error);
+                }
+            } 
+        }
+    } catch(error) {
+        console.log(error);
+    }
+});
+
+// ------------------------------------Product Section ----------------------------------------------------------
+
+router.post('/addproduct', authToken, upload, async (req, res) => {
+    try{
+        const product = new Product({
+            name: req.body.name,
+            price: req.body.price,
+            quantity: req.body.quantity,
+            description: req.body.description,
+            seller: req.auth_user._id,
+            photo: req.file.filename,
+        });
+        await product.save();
+        res.status(200).send("Product has been Uploaded... <a href='/dashboard/product/add'>Click here</a>")
+    } catch (error) {
+        console.log(error);
+    }
+});
+
+//----------------------------------------------------------------------------------------------------------------
 
 async function getUser(id) {
     try{
@@ -249,6 +270,8 @@ async function authToken(req, res, next){
     }
 }
 
+//--------------------------------------------------------------------------------------------------------
+
 router.get("/", (req, res) => {
     if(req.cookies.json){
         return res.redirect('/dashboard/home');
@@ -329,6 +352,23 @@ router.get('/dashboard/rm-ph', authToken, async (req, res) => {
         console.log(error);
         res.status(401).send("Failed to Remove Photo.. <a href='/dashboard/home'>Click to Dashboard</a>")
     }
+});
+
+//--------------------------------- Product Section ---------------------------------------------
+
+router.get('/dashboard/product', authToken, async (req, res) => {
+    const user = req.auth_user;
+    const products = await Product.find().exec();
+    res.render('dashboard', {
+        title: "Dashboard", user, board: "product", products: products
+    });
+});
+
+router.get('/dashboard/product/add', authToken, (req, res) => {
+    const user = req.auth_user;
+    res.render('dashboard', {
+        title: "Dashboard", user, board: "addProduct"
+    });
 });
 
 console.log(`Server Started at http://${getIp()}:${process.env.PORT}`);
