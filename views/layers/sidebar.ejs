@@ -43,7 +43,7 @@
     <% if(board === 'product' || board === 'addProduct') { %>
         <ul id="options">
             <% if(!(board === 'product')) { %>
-                <li><a>View Products</a></li>
+                <li><a href="/dashboard/product">View Products</a></li>
             <% } %>
             <li><a>View Orders</a></li>
             <% if(user.role === 'farmer') { %>
@@ -54,6 +54,11 @@
                 <li><a>Take Rent</a></li>
             <% } %>
             <li class="back"><a href="/dashboard/home">Back</a></li>
+        </ul>
+    <% } %>
+    <% if(board === 'photo') { %>
+        <ul id="options">
+            <li class="back"><a onclick="window.history.back();">Back</a></li>
         </ul>
     <% } %>
 </aside>

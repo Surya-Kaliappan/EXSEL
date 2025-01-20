@@ -58,7 +58,7 @@ router.post('/register', async (req, res) => {
 router.post('/auth', async (req,res) => {
     try{
         const {email, pass} = req.body; 
-        const user = await User.findOne({ email }).exec();
+        const user = await User.findOne({ email: email }).exec();
         if (!user) {
             return res.status(404).send("User not found... <a href='/'>Back to Login</a>");
         }
@@ -89,7 +89,7 @@ router.post("/reset", async (req, res) => {
         const encryptedData = encryptLinkData(user._id);
         const link = `${req.protocol}://${req.headers.host}/change?step=${encodeURIComponent(encryptedData)}`;
         console.log(req.headers);
-        // await sendEmail(email, link);
+        await sendEmail(email, link);
         console.log(`Reset Link: ${link}`);
         res.status(200).send("Link has been sented to the Registered Email. <a href='/'>Click to Login</a>")
     } else {
@@ -359,8 +359,16 @@ router.get('/dashboard/rm-ph', authToken, async (req, res) => {
 router.get('/dashboard/product', authToken, async (req, res) => {
     const user = req.auth_user;
     const products = await Product.find().exec();
+    const result = await User.find({ role: 'farmer' }, { name: 1, phone: 1 });
+    const farmers = result.reduce((acc, farmer) => {
+        acc[farmer._id] = {
+          name: farmer.name,
+          phone: farmer.phone
+        };
+        return acc;
+      }, {});
     res.render('dashboard', {
-        title: "Dashboard", user, board: "product", products: products
+        title: "Dashboard", user, board: "product", products, farmers
     });
 });
 

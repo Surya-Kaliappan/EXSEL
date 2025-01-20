@@ -9,9 +9,9 @@
     <!-- Product Grid -->
     <section class="product-grid">
         
-        <% products.forEach( product => { 
+        <% products.forEach( (product, key) => { 
             if(!(product.seller == user._id)) { %>
-            <div class="product-card" data-id="<%- product._id %>">
+            <div class="product-card" data-id="<%- product._id %>" data-key="<%= key %>" data-sel="<%- product.seller %>">
                 <div class="product-photo">
                     <img src="/uploads/<%- product.photo %>" alt="<%- product.name%>" >
                 </div>
@@ -21,6 +21,7 @@
                 </div>
             </div>
         <% }}) %>
+        
     </section>
     <!-- Product Detail Popup -->
     <div class="product-popup-container" id="productPopup">
@@ -77,24 +78,19 @@
             if (!card) return; // If not a product card, do nothing
 
             const productId = card.dataset.id; // Get product ID from data attribute
-            const product = {
-                photo: card.querySelector('img').src,
-                name: card.querySelector('h3').textContent,
-                price: card.querySelector('p').textContent,
-                description: 'Product description goes here.', // Replace with real data
-                sellerName: 'Seller Name', // Replace with real data
-                sellerContact: '123-456-7890', // Replace with real data
-                sellerAddress: 'Seller Address', // Replace with real data
-            };
+
+            const product = <%- JSON.stringify(products) %>[card.dataset.key];
+
+            const farmer = <%- JSON.stringify(farmers) %>[card.dataset.sel];
 
             // Populate the popup fields
-            popupProductPhoto.src = product.photo;
+            popupProductPhoto.src = card.querySelector('img').src;
             popupProductName.textContent = product.name;
             popupProductPrice.textContent = `Price: ${product.price}`;
             popupProductDescription.textContent = product.description;
-            popupSellerName.textContent = `Name: ${product.sellerName}`;
-            popupSellerContact.textContent = `Contact: ${product.sellerContact}`;
-            popupSellerAddress.textContent = `Address: ${product.sellerAddress}`;
+            popupSellerName.textContent = `Name: ${farmer.name}`;
+            popupSellerContact.textContent = `Contact: ${farmer.phone}`;
+            popupSellerAddress.textContent = `Address: PLACE`;
 
             // Show popup
             productPopup.classList.add('show');
