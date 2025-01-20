@@ -11,7 +11,7 @@
         
         <% products.forEach( product => { 
             if(!(product.seller == user._id)) { %>
-            <div class="product-card">
+            <div class="product-card" data-id="<%- product._id %>">
                 <div class="product-photo">
                     <img src="/uploads/<%- product.photo %>" alt="<%- product.name%>" >
                 </div>
@@ -21,78 +21,102 @@
                 </div>
             </div>
         <% }}) %>
-
-        <div class="product-card">
-            <div class="product-photo">
-                <img src="/img/vegitable.png" alt="vegitable">
-            </div>
-            <div class="product-details">
-                <h3>Tomato</h3>
-                <p>Price: 50</p>
-            </div>
-        </div>
-        <div class="product-card">
-            <div class="product-photo">
-                <img src="/img/vegitable.png" alt="vegitable">
-            </div>
-            <div class="product-details">
-                <h3>Potato</h3>
-                <p>Price: 70</p>
-            </div>
-        </div>
-        <div class="product-card">
-            <div class="product-photo">
-                <img src="/img/vegitable.png" alt="vegitable">
-            </div>
-            <div class="product-details">
-                <h3>Brinjal</h3>
-                <p>Price: 40</p>
-            </div>
-        </div>
-        <div class="product-card">
-            <div class="product-photo">
-                <img src="/img/vegitable.png" alt="vegitable">
-            </div>
-            <div class="product-details">
-                <h3>Potato</h3>
-                <p>Price: 70</p>
-            </div>
-        </div>
-        <div class="product-card">
-            <div class="product-photo">
-                <img src="/img/vegitable.png" alt="vegitable">
-            </div>
-            <div class="product-details">
-                <h3>Potato</h3>
-                <p>Price: 70</p>
-            </div>
-        </div>
-        <div class="product-card">
-            <div class="product-photo">
-                <img src="/img/vegitable.png" alt="vegitable">
-            </div>
-            <div class="product-details">
-                <h3>Potato</h3>
-                <p>Price: 70</p>
-            </div>
-        </div>
-        <div class="product-card">
-            <div class="product-photo">
-                <img src="/img/vegitable.png" alt="vegitable">
-            </div>
-            <div class="product-details">
-                <h3>Potato</h3>
-                <p>Price: 70</p>
-            </div>
-        </div>
-        <div class="product-card">
-            <div class="product-photo">
-                <img src="/img/dashboard.jpg" alt="vegitable">
-            </div>
-            <div class="product-details">
-                <h3>Potato</h3>
-                <p>Price: 70</p>
-            </div>
-        </div>
     </section>
+    <!-- Product Detail Popup -->
+    <div class="product-popup-container" id="productPopup">
+        <div class="product-popup">
+            <!-- Action Buttons -->
+            <div class="popup-actions">
+                <button id="closePopup">Back</button>
+                <button class="buy-btn">Add to Cart</button>
+            </div>
+            <!-- Product Image -->
+            <div class="product-image">
+                <img id="popupProductPhoto" src="" alt="Product">
+            </div>
+
+            <!-- Product Details -->
+            <div class="pop-product-details">
+                <h2 id="popupProductName"></h2>
+                <p class="price" id="popupProductPrice"></p>
+                <div class="description">
+                    <h3>Description :</h3>
+                    <p id="popupProductDescription"></p>
+                </div>
+
+                <div class="seller-info">
+                    <h3>Seller Information:</h3>
+                    <p id="popupSellerName"></p>
+                    <p id="popupSellerContact"></p>
+                    <p id="popupSellerAddress"></p>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const productPopup = document.getElementById('productPopup');
+        const closePopup = document.getElementById('closePopup');
+        const productCards = document.querySelectorAll('.product-card');
+
+        // Fields inside the popup
+        const popupProductPhoto = document.getElementById('popupProductPhoto');
+        const popupProductName = document.getElementById('popupProductName');
+        const popupProductPrice = document.getElementById('popupProductPrice');
+        const popupProductDescription = document.getElementById('popupProductDescription');
+        const popupSellerName = document.getElementById('popupSellerName');
+        const popupSellerContact = document.getElementById('popupSellerContact');
+        const popupSellerAddress = document.getElementById('popupSellerAddress');
+
+        // Show popup and populate with product data
+        const productList = document.querySelector('.product-grid'); // Parent container
+
+        productList.addEventListener('click', (event) => {
+            const card = event.target.closest('.product-card'); // Check if a product card was clicked
+            if (!card) return; // If not a product card, do nothing
+
+            const productId = card.dataset.id; // Get product ID from data attribute
+            const product = {
+                photo: card.querySelector('img').src,
+                name: card.querySelector('h3').textContent,
+                price: card.querySelector('p').textContent,
+                description: 'Product description goes here.', // Replace with real data
+                sellerName: 'Seller Name', // Replace with real data
+                sellerContact: '123-456-7890', // Replace with real data
+                sellerAddress: 'Seller Address', // Replace with real data
+            };
+
+            // Populate the popup fields
+            popupProductPhoto.src = product.photo;
+            popupProductName.textContent = product.name;
+            popupProductPrice.textContent = `Price: ${product.price}`;
+            popupProductDescription.textContent = product.description;
+            popupSellerName.textContent = `Name: ${product.sellerName}`;
+            popupSellerContact.textContent = `Contact: ${product.sellerContact}`;
+            popupSellerAddress.textContent = `Address: ${product.sellerAddress}`;
+
+            // Show popup
+            productPopup.classList.add('show');
+            document.body.style.overflow = 'hidden'; // Disable background scrolling
+        });
+
+        // Close popup
+        closePopup.addEventListener('click', () => {
+            productPopup.classList.remove('show');
+            document.body.style.overflow = 'auto'; // Re-enable background scrolling
+        });
+    });
+    
+</script>
+
+
+<!-- <div class="product-card">
+    <div class="product-photo">
+        <img src="/img/dashboard.jpg" alt="vegitable">
+    </div>
+    <div class="product-details">
+        <h3>Potato</h3>
+        <p>Price: 70</p>
+    </div>
+</div> -->

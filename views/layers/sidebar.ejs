@@ -46,11 +46,13 @@
                 <li><a>View Products</a></li>
             <% } %>
             <li><a>View Orders</a></li>
-            <% if(!(board === 'addProduct')) { %>
-                <li><a href="/dashboard/product/add">Sell Product</a></li>
+            <% if(user.role === 'farmer') { %>
+                <% if(!(board === 'addProduct')) { %>
+                    <li><a href="/dashboard/product/add">Sell Product</a></li>
+                <% } %>
+                <li><a>Give Rent</a></li>
+                <li><a>Take Rent</a></li>
             <% } %>
-            <li><a>Give Rent</a></li>
-            <li><a>Take Rent</a></li>
             <li class="back"><a href="/dashboard/home">Back</a></li>
         </ul>
     <% } %>
