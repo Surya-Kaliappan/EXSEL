@@ -42,6 +42,7 @@ router.post('/register', async (req, res) => {
             name: req.body.name,
             email: req.body.email,
             pass: await bcrypt.hash(req.body.pass, salt),
+            address: req.body.address,
             phone: req.body.phone,
             role: req.body.role
         });
@@ -88,8 +89,7 @@ router.post("/reset", async (req, res) => {
     if(user){
         const encryptedData = encryptLinkData(user._id);
         const link = `${req.protocol}://${req.headers.host}/change?step=${encodeURIComponent(encryptedData)}`;
-        console.log(req.headers);
-        await sendEmail(email, link);
+        // await sendEmail(email, link);
         console.log(`Reset Link: ${link}`);
         res.status(200).send("Link has been sented to the Registered Email. <a href='/'>Click to Login</a>")
     } else {
@@ -129,14 +129,16 @@ router.post("/update_profile", authToken, async (req, res) => {
             { 
                 name : req.body.name.trim(),
                 email : req.body.email.trim(),
-                phone : req.body.phone.trim()
+                phone : req.body.phone.trim(),
+                address : req.body.address.trim(),
             },
             { new : true }
         );
         if(!updateUser) {
             return res.status(404).send("User not found.");
         }
-        return res.status(200).send("Profile Updated Successfully... <a href='/dashboard/profile'>Click to Dashboard</a>");
+        res.status(200).send("Profile Updated Successfully... <a href='/dashboard/profile'>Click to Dashboard</a>");
+
     } catch (error) {
         console.log(error);
         res.send("Updating Profile has been failed due to server error...");
@@ -172,6 +174,8 @@ router.post('/upload_photo', authToken, upload, async (req, res) => {
 
 router.post('/addproduct', authToken, upload, async (req, res) => {
     try{
+        var date = new Date();
+        var currentDate = date.getDate()+'-'+(date.getMonth()+1)+'-'+date.getFullYear()+'@'+date.getHours()+':'+date.getMinutes()+':'+date.getSeconds();
         const product = new Product({
             name: req.body.name,
             price: req.body.price,
@@ -179,9 +183,10 @@ router.post('/addproduct', authToken, upload, async (req, res) => {
             description: req.body.description,
             seller: req.auth_user._id,
             photo: req.file.filename,
+            created: currentDate,
         });
         await product.save();
-        res.status(200).send("Product has been Uploaded... <a href='/dashboard/product/add'>Click here</a>")
+        res.status(200).send("Product has been Uploaded... <a href='/dashboard/product'>Click here</a>")
     } catch (error) {
         console.log(error);
     }
@@ -261,7 +266,6 @@ async function authToken(req, res, next){
     }
     try{
         const decode = jwt.verify(token, process.env.BYTPASS);
-        // console.log(await getUser(decode.userId));
         req.auth_user = await getUser(decode.userId);
         next();
     } catch (error) {
@@ -359,11 +363,12 @@ router.get('/dashboard/rm-ph', authToken, async (req, res) => {
 router.get('/dashboard/product', authToken, async (req, res) => {
     const user = req.auth_user;
     const products = await Product.find().exec();
-    const result = await User.find({ role: 'farmer' }, { name: 1, phone: 1 });
+    const result = await User.find({ role: 'farmer' }, { name: 1, phone: 1, address: 1 });
     const farmers = result.reduce((acc, farmer) => {
         acc[farmer._id] = {
           name: farmer.name,
-          phone: farmer.phone
+          phone: farmer.phone,
+          address: farmer.address,
         };
         return acc;
       }, {});

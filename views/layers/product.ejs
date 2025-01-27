@@ -29,7 +29,8 @@
             <!-- Action Buttons -->
             <div class="popup-actions">
                 <button id="closePopup">Back</button>
-                <button class="buy-btn">Add to Cart</button>
+                <p>Posted on: <span id="popupPosted"></span></p>
+                <button class="buy-btn">Buy</button>
             </div>
             <!-- Product Image -->
             <div class="product-image">
@@ -62,6 +63,7 @@
         const productCards = document.querySelectorAll('.product-card');
 
         // Fields inside the popup
+        const popupProductPosted = document.getElementById('popupPosted');
         const popupProductPhoto = document.getElementById('popupProductPhoto');
         const popupProductName = document.getElementById('popupProductName');
         const popupProductPrice = document.getElementById('popupProductPrice');
@@ -84,13 +86,14 @@
             const farmer = <%- JSON.stringify(farmers) %>[card.dataset.sel];
 
             // Populate the popup fields
+            popupProductPosted.textContent = product.created;
             popupProductPhoto.src = card.querySelector('img').src;
             popupProductName.textContent = product.name;
             popupProductPrice.textContent = `Price: ${product.price}`;
             popupProductDescription.textContent = product.description;
             popupSellerName.textContent = `Name: ${farmer.name}`;
             popupSellerContact.textContent = `Contact: ${farmer.phone}`;
-            popupSellerAddress.textContent = `Address: PLACE`;
+            popupSellerAddress.textContent = `Address: ${farmer.address}`;
 
             // Show popup
             productPopup.classList.add('show');

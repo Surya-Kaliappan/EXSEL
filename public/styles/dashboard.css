@@ -173,7 +173,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    padding: 20px;
+    padding: 25px;
     /* background: #ecf0f1; */
     background: #ffffff71;
     backdrop-filter: blur(20px);
@@ -219,7 +219,8 @@ body {
 
 .edit-profile-form {
     margin-top: 20px;
-    padding: 20px;
+    padding: 50px;
+    padding-bottom: 80px;
     /* background: #ecf0f1; */
     background: #ffffff71;
     backdrop-filter: blur(20px);
@@ -473,6 +474,12 @@ form {
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.popup-actions p {
+    font-size: 1rem;
+    font-weight: bold;
+    align-content: center;
 }
 
 .popup-actions #closePopup {
