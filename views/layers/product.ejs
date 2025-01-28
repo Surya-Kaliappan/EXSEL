@@ -1,16 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-        <%= title %>
-    </title>
+    <title><%= title %></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/styles/dashboard.css">
 </head>
-
 <body>
     <main class="main-content">
         <!-- Header -->
@@ -19,33 +15,18 @@
         </header>
 
         <!-- Search Filters -->
-        <div class="flex justify-content gap-5">
-            <div class="relative">
-                <input id="nameSearch" type="text" class="text-gray-900 border border-gray-300 rounded-lg p-2 w-fit"
-                    placeholder="Search by name...">
-                <div id="nameSuggestions"
-                    class="absolute bg-white border border-gray-300 rounded-lg mt-1 hidden max-h-40 overflow-y-auto">
-                </div>
-            </div>
-            <input id="priceSearch" type="text" class="text-gray-900 border border-gray-300 rounded-lg p-2 w-fit"
-                placeholder="Search by price...">
-            <div class="relative">
-                <input id="addressSearch" type="text" class="text-gray-900 border border-gray-300 rounded-lg p-2 w-fit"
-                    placeholder="Search by address...">
-                <div id="addressSuggestions"
-                    class="absolute bg-white border border-gray-300 rounded-lg mt-1 hidden max-h-40 overflow-y-auto">
-                </div>
-            </div>
+        <div class="flex justify-center gap-5 p-5">
+            <input type="text" class="text-gray-900 border border-gray-300 rounded-lg p-2 w-60" placeholder="Search by name...">
+            <input type="text" class="text-gray-900 border border-gray-300 rounded-lg p-2 w-60" placeholder="Search by price...">
+            <input type="text" class="text-gray-900 border border-gray-300 rounded-lg p-2 w-60" placeholder="Search by address...">
             <button class="bg-green-500 text-white rounded-lg px-4 py-2 hover:bg-green-600">Search</button>
         </div>
 
-
         <!-- Product Grid -->
         <section class="product-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 p-5">
-            <% products.forEach((product, key)=> {
+            <% products.forEach((product, key) => {
                 if (!(product.seller == user._id)) { %>
-                <div class="product-card border rounded-lg p-4" data-id="<%- product._id %>" data-key="<%= key %>"
-                    data-sel="<%- product.seller %>">
+                <div class="product-card border rounded-lg p-4" data-id="<%- product._id %>" data-key="<%= key %>" data-sel="<%- product.seller %>">
                     <div class="product-photo">
                         <img src="/uploads/<%- product.photo %>" alt="<%- product.name %>" class="rounded-lg">
                     </div>
@@ -54,34 +35,29 @@
                         <p class="text-gray-700">Price: <%- product.price %></p>
                     </div>
                 </div>
-                <% } }) %>
+            <% } }) %>
         </section>
 
         <!-- Product Detail Popup -->
-        <div class="product-popup-container" id="productPopup">
-            <div class="product-popup">
-                <!-- Action Buttons -->
-                <div class="popup-actions">
-                    <button id="closePopup">Back</button>
-                    <p>Posted on: <span id="popupPosted"></span></p>
-                    <button class="buy-btn">Buy</button>
+        <div class="product-popup-container fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 hidden" id="productPopup">
+            <div class="product-popup bg-white rounded-lg p-5 w-11/12 max-w-2xl mx-auto mt-20 relative">
+                <div class="popup-actions flex justify-between items-center mb-5">
+                    <button id="closePopup" class="bg-red-500 text-white px-4 py-2 rounded-lg">Back</button>
+                    <p class="text-sm">Posted on: <span id="popupPosted"></span></p>
+                    <button class="buy-btn bg-blue-500 text-white px-4 py-2 rounded-lg">Buy</button>
                 </div>
-                <!-- Product Image -->
-                <div class="product-image">
-                    <img id="popupProductPhoto" src="" alt="Product">
+                <div class="product-image mb-5">
+                    <img id="popupProductPhoto" src="" alt="Product" class="rounded-lg w-full">
                 </div>
-
-                <!-- Product Details -->
                 <div class="pop-product-details">
-                    <h2 id="popupProductName"></h2>
-                    <p class="price" id="popupProductPrice"></p>
-                    <div class="description">
-                        <h3>Description :</h3>
+                    <h2 id="popupProductName" class="text-2xl font-bold"></h2>
+                    <p class="price text-lg text-gray-700" id="popupProductPrice"></p>
+                    <div class="description mt-3">
+                        <h3 class="font-bold">Description:</h3>
                         <p id="popupProductDescription"></p>
                     </div>
-
-                    <div class="seller-info">
-                        <h3>Seller Information:</h3>
+                    <div class="seller-info mt-3">
+                        <h3 class="font-bold">Seller Information:</h3>
                         <p id="popupSellerName"></p>
                         <p id="popupSellerContact"></p>
                         <p id="popupSellerAddress"></p>
@@ -100,15 +76,15 @@
             const searchButton = document.querySelector('.flex button');
             const searchInputs = document.querySelectorAll('.flex input');
 
-            const productsData = <% - JSON.stringify(products) %>;
-            console.log(productsData);
+            const productsData = <%- JSON.stringify(products) %>;
+
             // Show popup logic
             productList.addEventListener('click', (event) => {
                 const card = event.target.closest('.product-card');
                 if (!card) return;
 
                 const product = productsData[card.dataset.key];
-                const farmer = <% - JSON.stringify(farmers) %> [card.dataset.sel];
+                const farmer = <%- JSON.stringify(farmers) %>[card.dataset.sel];
 
                 document.getElementById('popupPosted').textContent = product.created;
                 document.getElementById('popupProductPhoto').src = card.querySelector('img').src;
@@ -184,60 +160,7 @@
                     productList.innerHTML = '<p class="text-red-500 p-5">No items found</p>';
                 }
             });
-            const nameInput = document.getElementById('nameSearch');
-            const nameSuggestions = document.getElementById('nameSuggestions');
-
-            const addressInput = document.getElementById('addressSearch');
-            const addressSuggestions = document.getElementById('addressSuggestions');
-
-            // Utility function to populate suggestions
-            const populateSuggestions = (input, suggestionsDiv, list, key) => {
-                const searchText = input.value.trim().toLowerCase();
-                suggestionsDiv.innerHTML = '';
-                if (searchText) {
-                    const matches = list
-                        .filter(item => item[key].toLowerCase().includes(searchText))
-                        .map(item => item[key])
-                        .slice(0, 10); // Limit suggestions to top 10
-
-                    matches.forEach(match => {
-                        const suggestion = document.createElement('div');
-                        suggestion.textContent = match;
-                        suggestion.className = 'p-2 hover:bg-gray-200 cursor-pointer';
-                        suggestion.addEventListener('click', () => {
-                            input.value = match; // Populate the input field with the selected suggestion
-                            suggestionsDiv.classList.add('hidden'); // Hide the suggestions
-                        });
-                        suggestionsDiv.appendChild(suggestion);
-                    });
-
-                    suggestionsDiv.classList.remove('hidden');
-                } else {
-                    suggestionsDiv.classList.add('hidden');
-                }
-            };
-
-            // Name input suggestions
-            nameInput.addEventListener('input', () => {
-                populateSuggestions(nameInput, nameSuggestions, productsData, 'name');
-            });
-
-            // Address input suggestions
-            addressInput.addEventListener('input', () => {
-                populateSuggestions(addressInput, addressSuggestions, productsData, 'address');
-            });
-
-            // Hide suggestions when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!nameInput.contains(e.target) && !nameSuggestions.contains(e.target)) {
-                    nameSuggestions.classList.add('hidden');
-                }
-                if (!addressInput.contains(e.target) && !addressSuggestions.contains(e.target)) {
-                    addressSuggestions.classList.add('hidden');
-                }
-            });
         });
     </script>
 </body>
-
 </html>
