@@ -1,121 +1,243 @@
-<main class="main-content">
-    <header class="header">
-        <h1>Product Tab</h1>
-    </header>
-    <div class="search-bar-container">
-        <input type="text" id="searchName" placeholder="Search by name...">
-        <input type="text" id="searchPrice" placeholder="Search by price...">
-    </div>
-    <!-- Product Grid -->
-    <section class="product-grid">
-        
-        <% products.forEach( (product, key) => { 
-            if(!(product.seller == user._id)) { %>
-            <div class="product-card" data-id="<%- product._id %>" data-key="<%= key %>" data-sel="<%- product.seller %>">
-                <div class="product-photo">
-                    <img src="/uploads/<%- product.photo %>" alt="<%- product.name%>" >
-                </div>
-                <div class="product-details">
-                    <h3><%- product.name %></h3>
-                    <p>Price: <%- product.price %></p>
-                </div>
-            </div>
-        <% }}) %>
-        
-    </section>
-    <!-- Product Detail Popup -->
-    <div class="product-popup-container" id="productPopup">
-        <div class="product-popup">
-            <!-- Action Buttons -->
-            <div class="popup-actions">
-                <button id="closePopup">Back</button>
-                <p>Posted on: <span id="popupPosted"></span></p>
-                <button class="buy-btn">Buy</button>
-            </div>
-            <!-- Product Image -->
-            <div class="product-image">
-                <img id="popupProductPhoto" src="" alt="Product">
-            </div>
+<!DOCTYPE html>
+<html lang="en">
 
-            <!-- Product Details -->
-            <div class="pop-product-details">
-                <h2 id="popupProductName"></h2>
-                <p class="price" id="popupProductPrice"></p>
-                <div class="description">
-                    <h3>Description :</h3>
-                    <p id="popupProductDescription"></p>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/styles/dashboard.css">
+</head>
+
+<body>
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header text-center p-5">
+            <h1 class="text-3xl font-bold">Product Tab</h1>
+        </header>
+
+        <!-- Search Filters -->
+        <div class="flex justify-content gap-5">
+            <div class="relative">
+                <input id="nameSearch" type="text" class="text-gray-900 border border-gray-300 rounded-lg p-2 w-fit"
+                    placeholder="Search by name...">
+                <div id="nameSuggestions"
+                    class="absolute bg-white border border-gray-300 rounded-lg mt-1 hidden max-h-40 overflow-y-auto">
+                </div>
+            </div>
+            <input id="priceSearch" type="text" class="text-gray-900 border border-gray-300 rounded-lg p-2 w-fit"
+                placeholder="Search by price...">
+            <div class="relative">
+                <input id="addressSearch" type="text" class="text-gray-900 border border-gray-300 rounded-lg p-2 w-fit"
+                    placeholder="Search by address...">
+                <div id="addressSuggestions"
+                    class="absolute bg-white border border-gray-300 rounded-lg mt-1 hidden max-h-40 overflow-y-auto">
+                </div>
+            </div>
+            <button class="bg-green-500 text-white rounded-lg px-4 py-2 hover:bg-green-600">Search</button>
+        </div>
+
+
+        <!-- Product Grid -->
+        <section class="product-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 p-5">
+            <% products.forEach((product, key)=> {
+                if (!(product.seller == user._id)) { %>
+                <div class="product-card border rounded-lg p-4" data-id="<%- product._id %>" data-key="<%= key %>"
+                    data-sel="<%- product.seller %>">
+                    <div class="product-photo">
+                        <img src="/uploads/<%- product.photo %>" alt="<%- product.name %>" class="rounded-lg">
+                    </div>
+                    <div class="product-details mt-3">
+                        <h3 class="text-xl font-bold"><%- product.name %></h3>
+                        <p class="text-gray-700">Price: <%- product.price %></p>
+                    </div>
+                </div>
+                <% } }) %>
+        </section>
+
+        <!-- Product Detail Popup -->
+        <div class="product-popup-container" id="productPopup">
+            <div class="product-popup">
+                <!-- Action Buttons -->
+                <div class="popup-actions">
+                    <button id="closePopup">Back</button>
+                    <p>Posted on: <span id="popupPosted"></span></p>
+                    <button class="buy-btn">Buy</button>
+                </div>
+                <!-- Product Image -->
+                <div class="product-image">
+                    <img id="popupProductPhoto" src="" alt="Product">
                 </div>
 
-                <div class="seller-info">
-                    <h3>Seller Information:</h3>
-                    <p id="popupSellerName"></p>
-                    <p id="popupSellerContact"></p>
-                    <p id="popupSellerAddress"></p>
+                <!-- Product Details -->
+                <div class="pop-product-details">
+                    <h2 id="popupProductName"></h2>
+                    <p class="price" id="popupProductPrice"></p>
+                    <div class="description">
+                        <h3>Description :</h3>
+                        <p id="popupProductDescription"></p>
+                    </div>
+
+                    <div class="seller-info">
+                        <h3>Seller Information:</h3>
+                        <p id="popupSellerName"></p>
+                        <p id="popupSellerContact"></p>
+                        <p id="popupSellerAddress"></p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</main>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const productPopup = document.getElementById('productPopup');
-        const closePopup = document.getElementById('closePopup');
-        const productCards = document.querySelectorAll('.product-card');
+    </main>
 
-        // Fields inside the popup
-        const popupProductPosted = document.getElementById('popupPosted');
-        const popupProductPhoto = document.getElementById('popupProductPhoto');
-        const popupProductName = document.getElementById('popupProductName');
-        const popupProductPrice = document.getElementById('popupProductPrice');
-        const popupProductDescription = document.getElementById('popupProductDescription');
-        const popupSellerName = document.getElementById('popupSellerName');
-        const popupSellerContact = document.getElementById('popupSellerContact');
-        const popupSellerAddress = document.getElementById('popupSellerAddress');
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const productPopup = document.getElementById('productPopup');
+            const closePopup = document.getElementById('closePopup');
+            const productList = document.querySelector('.product-grid');
+            const searchButton = document.querySelector('.flex button');
+            const searchInputs = document.querySelectorAll('.flex input');
 
-        // Show popup and populate with product data
-        const productList = document.querySelector('.product-grid'); // Parent container
+            const productsData = <% - JSON.stringify(products) %>;
+            console.log(productsData);
+            // Show popup logic
+            productList.addEventListener('click', (event) => {
+                const card = event.target.closest('.product-card');
+                if (!card) return;
 
-        productList.addEventListener('click', (event) => {
-            const card = event.target.closest('.product-card'); // Check if a product card was clicked
-            if (!card) return; // If not a product card, do nothing
+                const product = productsData[card.dataset.key];
+                const farmer = <% - JSON.stringify(farmers) %> [card.dataset.sel];
 
-            const productId = card.dataset.id; // Get product ID from data attribute
+                document.getElementById('popupPosted').textContent = product.created;
+                document.getElementById('popupProductPhoto').src = card.querySelector('img').src;
+                document.getElementById('popupProductName').textContent = product.name;
+                document.getElementById('popupProductPrice').textContent = `Price: ${product.price}`;
+                document.getElementById('popupProductDescription').textContent = product.description;
+                document.getElementById('popupSellerName').textContent = `Name: ${farmer.name}`;
+                document.getElementById('popupSellerContact').textContent = `Contact: ${farmer.phone}`;
+                document.getElementById('popupSellerAddress').textContent = `Address: ${farmer.address}`;
 
-            const product = <%- JSON.stringify(products) %>[card.dataset.key];
+                productPopup.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            });
 
-            const farmer = <%- JSON.stringify(farmers) %>[card.dataset.sel];
+            // Close popup
+            closePopup.addEventListener('click', () => {
+                productPopup.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            });
 
-            // Populate the popup fields
-            popupProductPosted.textContent = product.created;
-            popupProductPhoto.src = card.querySelector('img').src;
-            popupProductName.textContent = product.name;
-            popupProductPrice.textContent = `Price: ${product.price}`;
-            popupProductDescription.textContent = product.description;
-            popupSellerName.textContent = `Name: ${farmer.name}`;
-            popupSellerContact.textContent = `Contact: ${farmer.phone}`;
-            popupSellerAddress.textContent = `Address: ${farmer.address}`;
+            // Search functionality
+            searchButton.addEventListener('click', () => {
+                const nameFilter = searchInputs[0].value.trim().toLowerCase();
+                const priceFilter = searchInputs[1].value.trim();
+                const addressFilter = searchInputs[2].value.trim().toLowerCase();
 
-            // Show popup
-            productPopup.classList.add('show');
-            document.body.style.overflow = 'hidden'; // Disable background scrolling
+                const hasNameFilter = !!nameFilter;
+                const hasPriceFilter = !!priceFilter;
+                const hasAddressFilter = !!addressFilter;
+
+                const filteredProducts = productsData.filter(product => {
+                    if (hasNameFilter && !hasPriceFilter && !hasAddressFilter) {
+                        return product.name.toLowerCase().includes(nameFilter);
+                    }
+                    if (!hasNameFilter && hasPriceFilter && !hasAddressFilter) {
+                        return product.price.toString() === priceFilter;
+                    }
+                    if (!hasNameFilter && !hasPriceFilter && hasAddressFilter) {
+                        return product.address.toLowerCase().includes(addressFilter);
+                    }
+                    if (hasNameFilter && hasPriceFilter && hasAddressFilter) {
+                        return (
+                            product.name.toLowerCase().includes(nameFilter) &&
+                            product.price.toString() === priceFilter &&
+                            product.address.toLowerCase().includes(addressFilter)
+                        );
+                    }
+                    return false;
+                });
+
+                productList.innerHTML = '';
+
+                if (filteredProducts.length > 0) {
+                    filteredProducts.forEach((product, key) => {
+                        const productCard = document.createElement('div');
+                        productCard.classList.add('product-card', 'border', 'rounded-lg', 'p-4');
+                        productCard.setAttribute('data-id', product._id);
+                        productCard.setAttribute('data-key', key);
+                        productCard.setAttribute('data-sel', product.seller);
+
+                        productCard.innerHTML = `
+                            <div class="product-photo">
+                                <img src="/uploads/${product.photo}" alt="${product.name}" class="rounded-lg">
+                            </div>
+                            <div class="product-details mt-3">
+                                <h3 class="text-xl font-bold">${product.name}</h3>
+                                <p class="text-gray-700">Price: ${product.price}</p>
+                            </div>
+                        `;
+                        productList.appendChild(productCard);
+                    });
+                } else {
+                    productList.innerHTML = '<p class="text-red-500 p-5">No items found</p>';
+                }
+            });
+            const nameInput = document.getElementById('nameSearch');
+            const nameSuggestions = document.getElementById('nameSuggestions');
+
+            const addressInput = document.getElementById('addressSearch');
+            const addressSuggestions = document.getElementById('addressSuggestions');
+
+            // Utility function to populate suggestions
+            const populateSuggestions = (input, suggestionsDiv, list, key) => {
+                const searchText = input.value.trim().toLowerCase();
+                suggestionsDiv.innerHTML = '';
+                if (searchText) {
+                    const matches = list
+                        .filter(item => item[key].toLowerCase().includes(searchText))
+                        .map(item => item[key])
+                        .slice(0, 10); // Limit suggestions to top 10
+
+                    matches.forEach(match => {
+                        const suggestion = document.createElement('div');
+                        suggestion.textContent = match;
+                        suggestion.className = 'p-2 hover:bg-gray-200 cursor-pointer';
+                        suggestion.addEventListener('click', () => {
+                            input.value = match; // Populate the input field with the selected suggestion
+                            suggestionsDiv.classList.add('hidden'); // Hide the suggestions
+                        });
+                        suggestionsDiv.appendChild(suggestion);
+                    });
+
+                    suggestionsDiv.classList.remove('hidden');
+                } else {
+                    suggestionsDiv.classList.add('hidden');
+                }
+            };
+
+            // Name input suggestions
+            nameInput.addEventListener('input', () => {
+                populateSuggestions(nameInput, nameSuggestions, productsData, 'name');
+            });
+
+            // Address input suggestions
+            addressInput.addEventListener('input', () => {
+                populateSuggestions(addressInput, addressSuggestions, productsData, 'address');
+            });
+
+            // Hide suggestions when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!nameInput.contains(e.target) && !nameSuggestions.contains(e.target)) {
+                    nameSuggestions.classList.add('hidden');
+                }
+                if (!addressInput.contains(e.target) && !addressSuggestions.contains(e.target)) {
+                    addressSuggestions.classList.add('hidden');
+                }
+            });
         });
+    </script>
+</body>
 
-        // Close popup
-        closePopup.addEventListener('click', () => {
-            productPopup.classList.remove('show');
-            document.body.style.overflow = 'auto'; // Re-enable background scrolling
-        });
-    });
-    
-</script>
-
-
-<!-- <div class="product-card">
-    <div class="product-photo">
-        <img src="/img/dashboard.jpg" alt="vegitable">
-    </div>
-    <div class="product-details">
-        <h3>Potato</h3>
-        <p>Price: 70</p>
-    </div>
-</div> -->
+</html>
