@@ -175,7 +175,7 @@ router.post('/upload_photo', authToken, upload, async (req, res) => {
 router.post('/addproduct', authToken, upload, async (req, res) => {
     try{
         var date = new Date();
-        var currentDate = date.getDate()+'-'+(date.getMonth()+1)+'-'+date.getFullYear()+'@'+date.getHours()+':'+date.getMinutes()+':'+date.getSeconds();
+        var currentDate = date.getDate()+'-'+(date.getMonth()+1)+'-'+date.getFullYear()+' '+date.getHours()+':'+date.getMinutes()+':'+date.getSeconds();
         const product = new Product({
             name: req.body.name,
             price: req.body.price,
@@ -326,21 +326,21 @@ router.get('/update_password', authToken, (req, res) => {
 router.get('/dashboard/home', authToken, async (req, res) => {
     const user = req.auth_user;
     res.render('dashboard', {
-        title: "Dashboard", user, board: "home"
+        head: head_name,title: "Dashboard", user, board: "home"
     });
 });
 
 router.get('/dashboard/profile', authToken, (req, res) => {
     const user = req.auth_user;
     res.render('dashboard', {
-        title: "Dashboard", user, board: "profile"
+        head: head_name, title: "Dashboard", user, board: "profile"
     });
 });
 
 router.get('/dashboard/photo', authToken, (req, res) => {
     const user = req.auth_user;
     res.render('dashboard', {
-        title: "Dasboard", user, board: "photo"
+        head: head_name, title: "Dasboard", user, board: "photo"
     });
 });
 
@@ -373,14 +373,14 @@ router.get('/dashboard/product', authToken, async (req, res) => {
         return acc;
       }, {});
     res.render('dashboard', {
-        title: "Dashboard", user, board: "product", products, farmers
+        head: head_name, title: "Dashboard", user, board: "product", products, farmers
     });
 });
 
 router.get('/dashboard/product/add', authToken, (req, res) => {
     const user = req.auth_user;
     res.render('dashboard', {
-        title: "Dashboard", user, board: "addProduct"
+        head: head_name, title: "Dashboard", user, board: "addProduct"
     });
 });
 

@@ -480,6 +480,7 @@ form {
     font-size: 1rem;
     font-weight: bold;
     align-content: center;
+    cursor: pointer;
 }
 
 .popup-actions #closePopup {
@@ -716,4 +717,13 @@ textarea {
         width: 150px;
         height: 150px;
     }
+
+    .popup-actions button {
+        padding: 5px 10px;
+    }
+
+    .popup-actions p {
+        width: 100px;
+    }
+
 }

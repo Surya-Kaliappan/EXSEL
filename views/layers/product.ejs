@@ -5,13 +5,15 @@
     <div class="search-bar-container">
         <input type="text" id="searchName" placeholder="Search by name...">
         <input type="text" id="searchPrice" placeholder="Search by price...">
+        <input type="text" id="searchPlace" placeholder="Serach by Place...">
+        <button id="search-btn">Search</button>
     </div>
     <!-- Product Grid -->
     <section class="product-grid">
         
         <% products.forEach( (product, key) => { 
             if(!(product.seller == user._id)) { %>
-            <div class="product-card" data-id="<%- product._id %>" data-key="<%= key %>" data-sel="<%- product.seller %>">
+            <div class="product-card" data-id="<%- product._id %> product" data-key="<%= key %>" data-sel="<%- product.seller %>" id="product">
                 <div class="product-photo">
                     <img src="/uploads/<%- product.photo %>" alt="<%- product.name%>" >
                 </div>
@@ -29,7 +31,7 @@
             <!-- Action Buttons -->
             <div class="popup-actions">
                 <button id="closePopup">Back</button>
-                <p>Posted on: <span id="popupPosted"></span></p>
+                <p id="popupPosted" title="posted on"></p>
                 <button class="buy-btn">Buy</button>
             </div>
             <!-- Product Image -->
@@ -57,7 +59,8 @@
     </div>
 </main>
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    const clickedProduct = document.getElementById('product');
+    clickedProduct.addEventListener('click', () => {
         const productPopup = document.getElementById('productPopup');
         const closePopup = document.getElementById('closePopup');
         const productCards = document.querySelectorAll('.product-card');
@@ -81,7 +84,9 @@
 
             const productId = card.dataset.id; // Get product ID from data attribute
 
-            const product = <%- JSON.stringify(products) %>[card.dataset.key];
+            const productsData = <%- JSON.stringify(products) %>;
+
+            const product = productsData[card.dataset.key];
 
             const farmer = <%- JSON.stringify(farmers) %>[card.dataset.sel];
 
@@ -104,6 +109,18 @@
         closePopup.addEventListener('click', () => {
             productPopup.classList.remove('show');
             document.body.style.overflow = 'auto'; // Re-enable background scrolling
+        });
+    });
+
+    document.getElementById('seach-btn').addEventListener('click', () => {
+        const nameFilter = document.getElementById('searchName').value.trim().toLowerCase();
+        const priceFilter = document.getElementById('searchPrice').value.trim();
+        const placeFilter = document.getElementById('searchPlace').value.trim().toLowerCase();
+
+        
+
+        const filteredProduct = productData.filter(product => {
+            
         });
     });
     
