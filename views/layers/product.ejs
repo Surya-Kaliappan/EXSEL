@@ -8,159 +8,183 @@
     <link rel="stylesheet" href="/styles/dashboard.css">
 </head>
 <body>
-    <main class="main-content">
-        <!-- Header -->
-        <header class="header text-center p-5">
-            <h1 class="text-3xl font-bold">Product Tab</h1>
-        </header>
+<main class="main-content">
+    <header class="header">
+        <h1>Product Tab</h1>
+    </header>
 
-        <!-- Search Filters -->
-        <div class="flex justify-center gap-5 p-5">
-            <input type="text" class="text-gray-900 border border-gray-300 rounded-lg p-2 w-60" placeholder="Search by name...">
-            <input type="text" class="text-gray-900 border border-gray-300 rounded-lg p-2 w-60" placeholder="Search by price...">
-            <input type="text" class="text-gray-900 border border-gray-300 rounded-lg p-2 w-60" placeholder="Search by address...">
-            <button class="bg-green-500 text-white rounded-lg px-4 py-2 hover:bg-green-600">Search</button>
-        </div>
+    <!-- Suggestions Section -->
+    <section class="suggestions hidden" id="suggestionsSection">
+        <h2 class="text-xl font-bold p-4">Suggestions for You</h2>
+        <div class="suggestions-grid"></div>
+    </section>
 
-        <!-- Product Grid -->
-        <section class="product-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 p-5">
-            <% products.forEach((product, key) => {
-                if (!(product.seller == user._id)) { %>
-                <div class="product-card border rounded-lg p-4" data-id="<%- product._id %>" data-key="<%= key %>" data-sel="<%- product.seller %>">
-                    <div class="product-photo">
-                        <img src="/uploads/<%- product.photo %>" alt="<%- product.name %>" class="rounded-lg">
-                    </div>
-                    <div class="product-details mt-3">
-                        <h3 class="text-xl font-bold"><%- product.name %></h3>
-                        <p class="text-gray-700">Price: <%- product.price %></p>
-                    </div>
+    <div class="flex justify-content gap-5">
+        <input type="text" class="text-gray-900 border border-gray-300 rounded-lg p-2 w-fit h-fit" placeholder="Search by name...">
+        <input type="text" class="text-gray-900 border border-gray-300 rounded-lg p-2 w-fit h-fit" placeholder="Search by price...">
+        <input type="text" class="text-gray-900 border border-gray-300 rounded-lg p-2 w-fit h-fit" placeholder="Search by address...">
+        <button class="p-2 text-white text-lg bg-green-500 w-fit rounded-md justify-end">Search</button>
+    </div>
+    
+    <!-- Product Grid -->
+    <section class="product-grid">
+        <% products.forEach((product, key) => { 
+            if (!(product.seller == user._id)) { %>
+            <div class="product-card" data-id="<%- product._id %>" data-key="<%= key %>" data-sel="<%- product.seller %>" id="product">
+                <div class="product-photo">
+                    <img src="/uploads/<%- product.photo %>" alt="<%- product.name %>">
                 </div>
-            <% } }) %>
-        </section>
+                <div class="product-details">
+                    <h3><%- product.name %></h3>
+                    <p>Price: <%- product.price %></p>
+                </div>
+            </div>
+        <% }}) %>
+    </section>
 
-        <!-- Product Detail Popup -->
-        <div class="product-popup-container fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 hidden" id="productPopup">
-            <div class="product-popup bg-white rounded-lg p-5 w-11/12 max-w-2xl mx-auto mt-20 relative">
-                <div class="popup-actions flex justify-between items-center mb-5">
-                    <button id="closePopup" class="bg-red-500 text-white px-4 py-2 rounded-lg">Back</button>
-                    <p class="text-sm">Posted on: <span id="popupPosted"></span></p>
-                    <button class="buy-btn bg-blue-500 text-white px-4 py-2 rounded-lg">Buy</button>
+    <!-- Product Detail Popup -->
+    <div class="product-popup-container" id="productPopup">
+        <div class="product-popup">
+            <div class="popup-actions">
+                <button id="closePopup">Back</button>
+                <p>Posted on: <span id="popupPosted"></span></p>
+                <button class="buy-btn">Buy</button>
+            </div>
+            <div class="product-image">
+                <img id="popupProductPhoto" src="" alt="Product">
+            </div>
+            <div class="pop-product-details">
+                <h2 id="popupProductName"></h2>
+                <p class="price" id="popupProductPrice"></p>
+                <div class="description">
+                    <h3>Description :</h3>
+                    <p id="popupProductDescription"></p>
                 </div>
-                <div class="product-image mb-5">
-                    <img id="popupProductPhoto" src="" alt="Product" class="rounded-lg w-full">
-                </div>
-                <div class="pop-product-details">
-                    <h2 id="popupProductName" class="text-2xl font-bold"></h2>
-                    <p class="price text-lg text-gray-700" id="popupProductPrice"></p>
-                    <div class="description mt-3">
-                        <h3 class="font-bold">Description:</h3>
-                        <p id="popupProductDescription"></p>
-                    </div>
-                    <div class="seller-info mt-3">
-                        <h3 class="font-bold">Seller Information:</h3>
-                        <p id="popupSellerName"></p>
-                        <p id="popupSellerContact"></p>
-                        <p id="popupSellerAddress"></p>
-                    </div>
+                <div class="seller-info">
+                    <h3>Seller Information:</h3>
+                    <p id="popupSellerName"></p>
+                    <p id="popupSellerContact"></p>
+                    <p id="popupSellerAddress"></p>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
+</main>
 
-    <!-- JavaScript -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const productPopup = document.getElementById('productPopup');
-            const closePopup = document.getElementById('closePopup');
-            const productList = document.querySelector('.product-grid');
-            const searchButton = document.querySelector('.flex button');
-            const searchInputs = document.querySelectorAll('.flex input');
+<script>
+    const clickedProduct = document.getElementById('product');
+    clickedProduct.addEventListener('click', () => {
+        const productPopup = document.getElementById('productPopup');
+        const closePopup = document.getElementById('closePopup');
+        const productList = document.querySelector('.product-grid');
+        const suggestionsSection = document.getElementById('suggestionsSection');
+        const suggestionsGrid = document.querySelector('.suggestions-grid');
+        const searchButton = document.querySelector('.flex button');
+        const searchInputs = document.querySelectorAll('.flex input');
 
-            const productsData = <%- JSON.stringify(products) %>;
+        const productsData = <%- JSON.stringify(products) %>;
+        const userName = "<%= user.name %>".toLowerCase(); // Get the user's name
 
-            // Show popup logic
-            productList.addEventListener('click', (event) => {
-                const card = event.target.closest('.product-card');
-                if (!card) return;
+        // Function to suggest products based on user name
+        const suggestProducts = () => {
+            const keyword = userName.includes('lady') ? 'ladyfinger' : userName;
+            const suggestions = productsData.filter(product => 
+                product.name.toLowerCase().includes(keyword)
+            );
 
-                const product = productsData[card.dataset.key];
-                const farmer = <%- JSON.stringify(farmers) %>[card.dataset.sel];
+            if (suggestions.length > 0) {
+                suggestionsSection.classList.remove('hidden');
+                suggestionsGrid.innerHTML = '';
+                suggestions.forEach(product => {
+                    const suggestionCard = document.createElement('div');
+                    suggestionCard.classList.add('product-card');
 
-                document.getElementById('popupPosted').textContent = product.created;
-                document.getElementById('popupProductPhoto').src = card.querySelector('img').src;
-                document.getElementById('popupProductName').textContent = product.name;
-                document.getElementById('popupProductPrice').textContent = `Price: ${product.price}`;
-                document.getElementById('popupProductDescription').textContent = product.description;
-                document.getElementById('popupSellerName').textContent = `Name: ${farmer.name}`;
-                document.getElementById('popupSellerContact').textContent = `Contact: ${farmer.phone}`;
-                document.getElementById('popupSellerAddress').textContent = `Address: ${farmer.address}`;
-
-                productPopup.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            });
-
-            // Close popup
-            closePopup.addEventListener('click', () => {
-                productPopup.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-            });
-
-            // Search functionality
-            searchButton.addEventListener('click', () => {
-                const nameFilter = searchInputs[0].value.trim().toLowerCase();
-                const priceFilter = searchInputs[1].value.trim();
-                const addressFilter = searchInputs[2].value.trim().toLowerCase();
-
-                const hasNameFilter = !!nameFilter;
-                const hasPriceFilter = !!priceFilter;
-                const hasAddressFilter = !!addressFilter;
-
-                const filteredProducts = productsData.filter(product => {
-                    if (hasNameFilter && !hasPriceFilter && !hasAddressFilter) {
-                        return product.name.toLowerCase().includes(nameFilter);
-                    }
-                    if (!hasNameFilter && hasPriceFilter && !hasAddressFilter) {
-                        return product.price.toString() === priceFilter;
-                    }
-                    if (!hasNameFilter && !hasPriceFilter && hasAddressFilter) {
-                        return product.address.toLowerCase().includes(addressFilter);
-                    }
-                    if (hasNameFilter && hasPriceFilter && hasAddressFilter) {
-                        return (
-                            product.name.toLowerCase().includes(nameFilter) &&
-                            product.price.toString() === priceFilter &&
-                            product.address.toLowerCase().includes(addressFilter)
-                        );
-                    }
-                    return false;
+                    suggestionCard.innerHTML = `
+                        <div class="product-photo">
+                            <img src="/uploads/${product.photo}" alt="${product.name}">
+                        </div>
+                        <div class="product-details">
+                            <h3>${product.name}</h3>
+                            <p>Price: ${product.price}</p>
+                        </div>
+                    `;
+                    suggestionsGrid.appendChild(suggestionCard);
                 });
+            }
+        };
 
-                productList.innerHTML = '';
+        // Show popup logic
+        productList.addEventListener('click', (event) => {
+            const card = event.target.closest('.product-card');
+            if (!card) return;
 
-                if (filteredProducts.length > 0) {
-                    filteredProducts.forEach((product, key) => {
-                        const productCard = document.createElement('div');
-                        productCard.classList.add('product-card', 'border', 'rounded-lg', 'p-4');
-                        productCard.setAttribute('data-id', product._id);
-                        productCard.setAttribute('data-key', key);
-                        productCard.setAttribute('data-sel', product.seller);
+            const product = productsData[card.dataset.key];
+            const farmer = <%- JSON.stringify(farmers) %>[card.dataset.sel];
 
-                        productCard.innerHTML = `
-                            <div class="product-photo">
-                                <img src="/uploads/${product.photo}" alt="${product.name}" class="rounded-lg">
-                            </div>
-                            <div class="product-details mt-3">
-                                <h3 class="text-xl font-bold">${product.name}</h3>
-                                <p class="text-gray-700">Price: ${product.price}</p>
-                            </div>
-                        `;
-                        productList.appendChild(productCard);
-                    });
-                } else {
-                    productList.innerHTML = '<p class="text-red-500 p-5">No items found</p>';
-                }
-            });
+            document.getElementById('popupPosted').textContent = product.created;
+            document.getElementById('popupProductPhoto').src = card.querySelector('img').src;
+            document.getElementById('popupProductName').textContent = product.name;
+            document.getElementById('popupProductPrice').textContent = `Price: ${product.price}`;
+            document.getElementById('popupProductDescription').textContent = product.description;
+            document.getElementById('popupSellerName').textContent = `Name: ${farmer.name}`;
+            document.getElementById('popupSellerContact').textContent = `Contact: ${farmer.phone}`;
+            document.getElementById('popupSellerAddress').textContent = `Address: ${farmer.address}`;
+
+            productPopup.classList.add('show');
+            document.body.style.overflow = 'hidden';
         });
-    </script>
+
+        // Close popup
+        closePopup.addEventListener('click', () => {
+            productPopup.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        });
+
+        // Filter products
+        searchButton.addEventListener('click', () => {
+            const nameFilter = searchInputs[0].value.trim().toLowerCase();
+            const priceFilter = searchInputs[1].value.trim();
+            const addressFilter = searchInputs[2].value.trim().toLowerCase();
+
+            const filteredProducts = productsData.filter(product => {
+                if (nameFilter && !priceFilter && !addressFilter) {
+                    return product.name.toLowerCase().includes(nameFilter);
+                }
+                if (!nameFilter && priceFilter && !addressFilter) {
+                    return product.price.toString() === priceFilter;
+                }
+                if (!nameFilter && !priceFilter && addressFilter) {
+                    return product.address.toLowerCase().includes(addressFilter);
+                }
+                return false;
+            });
+
+            productList.innerHTML = '';
+
+            if (filteredProducts.length > 0) {
+                filteredProducts.forEach(product => {
+                    const productCard = document.createElement('div');
+                    productCard.classList.add('product-card');
+
+                    productCard.innerHTML = `
+                        <div class="product-photo">
+                            <img src="/uploads/${product.photo}" alt="${product.name}">
+                        </div>
+                        <div class="product-details">
+                            <h3>${product.name}</h3>
+                            <p>Price: ${product.price}</p>
+                        </div>
+                    `;
+                    productList.appendChild(productCard);
+                });
+            } else {
+                productList.innerHTML = '<p class="text-red-500 p-5">No items found</p>';
+            }
+        });
+
+        // Run suggestions on page load
+        suggestProducts();
+    });
+</script>
 </body>
 </html>
