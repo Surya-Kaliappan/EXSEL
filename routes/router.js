@@ -180,6 +180,7 @@ router.post('/addproduct', authToken, upload, async (req, res) => {
             name: req.body.name,
             price: req.body.price,
             quantity: req.body.quantity,
+            location: req.body.location,
             description: req.body.description,
             seller: req.auth_user._id,
             photo: req.file.filename,
