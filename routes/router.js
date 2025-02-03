@@ -174,8 +174,7 @@ router.post('/upload_photo', authToken, upload, async (req, res) => {
 
 router.post('/addproduct', authToken, upload, async (req, res) => {
     try{
-        var date = new Date();
-        var currentDate = date.getDate()+'-'+(date.getMonth()+1)+'-'+date.getFullYear()+' '+date.getHours()+':'+date.getMinutes()+':'+date.getSeconds();
+        const currentDate = getDate();
         const product = new Product({
             name: req.body.name,
             price: req.body.price,
@@ -185,6 +184,7 @@ router.post('/addproduct', authToken, upload, async (req, res) => {
             seller: req.auth_user._id,
             photo: req.file.filename,
             created: currentDate,
+            last_updated: currentDate,
         });
         await product.save();
         res.status(200).send("Product has been Uploaded... <a href='/dashboard/product'>Click here</a>")
@@ -193,7 +193,37 @@ router.post('/addproduct', authToken, upload, async (req, res) => {
     }
 });
 
+router.post('/product/update', authToken, async (req, res) => {
+    try{
+        var currentDate = getDate();
+        const updateProduct = await Product.findByIdAndUpdate(req.body.productId,
+            { 
+                price : req.body.price,
+                location : req.body.location,
+                last_updated : currentDate,
+            },
+            { new : true }
+        );
+        if(!updateProduct) {
+            console.log(updateProduct);
+            return res.status(401).send("No Product found... <a href='/dashboard/product/own'>Click to Products</a>")
+        }
+
+        res.status(200).send("Product Updated Successfully... <a href='/dashboard/product/own'>Click to Dashboard</a>");
+
+    } catch (error) {
+        console.log(error);
+        res.send("Updating Product has been failed due to server error...");
+    }
+});
+
 //----------------------------------------------------------------------------------------------------------------
+
+function getDate(){
+    var date = new Date();
+    var currentDate = date.getDate()+'-'+(date.getMonth()+1)+'-'+date.getFullYear()+' '+date.getHours()+':'+date.getMinutes()+':'+date.getSeconds();
+    return currentDate;
+}
 
 async function getUser(id) {
     try{
@@ -382,6 +412,14 @@ router.get('/dashboard/product/add', authToken, (req, res) => {
     const user = req.auth_user;
     res.render('dashboard', {
         head: head_name, title: "Dashboard", user, board: "addProduct"
+    });
+});
+
+router.get('/dashboard/product/own', authToken, async (req, res) => {
+    const user = req.auth_user;
+    const products = await Product.find({ seller: user._id });
+    res.render('dashboard', {
+        head: head_name, title: "Dashboard", user, board: "ownProduct", products
     });
 });
 

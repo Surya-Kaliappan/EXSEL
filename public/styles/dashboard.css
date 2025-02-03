@@ -4,6 +4,7 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Arial', sans-serif;
+    scroll-behavior: smooth;
 }
 
 body {
@@ -413,6 +414,28 @@ form {
     color: #16a085;
 }
 
+.product-action {
+    margin-top: 10px;
+}
+
+.product-btn {
+    width: 100%;
+    background-color: #16a024af;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.product-btn:hover {
+    background-color: #138f1df0;
+    transform: translateY(3px);
+}
+
 /* Popup Styles */
 .product-popup-container {
     position: fixed;
@@ -429,6 +452,7 @@ form {
     opacity: 0;
     transition: visibility 0s, opacity 0.3s ease-in-out;
     backdrop-filter: blur(5px);
+    scroll-behavior: smooth;
 }
 
 .product-popup {
@@ -476,6 +500,10 @@ form {
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
+.pop-product-details h2 {
+    text-align: center;
+}
+
 .popup-actions p {
     font-size: 1rem;
     font-weight: bold;
@@ -484,23 +512,86 @@ form {
 }
 
 .popup-actions #closePopup {
-    background-color: #e74c3c;
+    background-color: #e74a3cdc;
     color: white;
 }
 
 .popup-actions #closePopup:hover {
-    background-color: #c0392b;
+    background-color: #c0352bde;
     transform: scale(1.05);
 }
 
-.popup-actions .buy-btn {
+.popup-actions .buy-btn, #del-btn {
     background-color: #2ecc71;
     color: white;
 }
 
-.popup-actions .buy-btn:hover {
+.popup-actions .buy-btn:hover, #del-btn:hover {
     background-color: #27ae60;
     transform: scale(1.05);
+}
+
+/* .popup-actions #del-btn {
+    background-color: #4de73c;
+    color: white;
+}
+
+.popup-actions #del-btn:hover {
+    background-color: #2bc02b;
+    transform: scale(1.05);
+} */
+
+.buy-input-container {
+    display: none; /* Hidden initially */
+    padding: 15px;
+    background-color: #f0f0f0;
+    margin: 20px 0px;
+    margin-bottom: 5px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: opacity 0.3s ease-in-out;
+    opacity: 0;
+}
+
+.buy-input-container.show {
+    display: block;
+    opacity: 1;
+    animation: slideUp 0.5s ease-out;
+}
+
+.buy-input-container input {
+    padding: 10px;
+    width: 100%;
+    font-size: 1rem;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.buy-input-container button {
+    padding: 10px 15px;
+    font-size: 1rem;
+    background-color: #3498db;
+    color: white;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.buy-input-container button:hover {
+    background-color: #2980b9;
+}
+
+@keyframes slideUp {
+    0% {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 /* Product Details */

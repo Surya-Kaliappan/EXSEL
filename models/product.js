@@ -31,6 +31,10 @@ const productScheme = new mongoose.Schema({
     created: {
         type: String,
         required: true,
+    },
+    last_updated: {
+        type: String,
+        required: true,
     }
 });
 

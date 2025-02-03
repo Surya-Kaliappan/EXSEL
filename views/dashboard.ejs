@@ -25,6 +25,8 @@
             <%- include('layers/product') %>
         <% } else if (board == 'addProduct') { %>
             <%- include('layers/addProduct') %>
+        <% } else if (board === 'ownProduct') { %>
+            <%- include('layers/ownProduct') %>
         <% } %>
     </div>
     <script>

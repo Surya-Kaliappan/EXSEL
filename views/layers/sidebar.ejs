@@ -40,19 +40,22 @@
         <% } %>
         <li class="back"><a onclick="shiftPanel('options','photo-options','block','none')">Back</a></li>
     </ul>
-    <% if(board === 'product' || board === 'addProduct') { %>
+    <% if(board === 'product' || board === 'addProduct' || board === 'ownProduct') { %>
         <ul id="options">
             <% if(!(board === 'product')) { %>
                 <li><a href="/dashboard/product">View Products</a></li>
             <% } %>
-            <li><a>View Orders</a></li>
             <% if(user.role === 'farmer') { %>
                 <% if(!(board === 'addProduct')) { %>
                     <li><a href="/dashboard/product/add">Sell Product</a></li>
                 <% } %>
+                <% if(!(board === 'ownProduct')) { %>
+                    <li><a href="/dashboard/product/own">Own Products</a></li>
+                <% } %>
                 <li><a>Give Rent</a></li>
                 <li><a>Take Rent</a></li>
             <% } %>
+            <li><a>View Orders</a></li>
             <li class="back"><a href="/dashboard/home">Back</a></li>
         </ul>
     <% } %>

@@ -1,6 +1,6 @@
 <main class="main-content">
     <header class="header">
-        <h1>Product Tab</h1>
+        <h1>Own Products</h1>
     </header>
     <div class="search-bar-container">
         <input type="text" id="filterName" placeholder="Search by Name">
@@ -10,9 +10,7 @@
     </div>
     <!-- Product Grid -->
     <section class="product-grid">
-        
-        <% products.forEach( (product, key) => { 
-            if(!(product.seller == user._id)) { %>
+        <% products.forEach( (product, key) => { %>
             <div class="product-card" data-id="<%- product._id %>" data-key="<%= key %>" data-sel="<%- product.seller %>">
                 <div class="product-photo">
                     <img src="/uploads/<%- product.photo %>" alt="<%- product.name%>" >
@@ -22,9 +20,11 @@
                     <p id="product-price">Price: <%- product.price %></p>
                     <input type="hidden" value="<%- product.location %>" id="product-location">
                 </div>
+                <!-- <div class="product-action">
+                    <button class="product-btn">Update</button>
+                </div> -->
             </div>
-        <% }}) %>
-        
+        <% }) %>
     </section>
     <!-- Product Detail Popup -->
     <div class="product-popup-container" id="productPopup">
@@ -33,7 +33,7 @@
             <div class="popup-actions">
                 <button id="closePopup">Back</button>
                 <p id="popupPosted" title="posted on"></p>
-                <button class="buy-btn">Buy</button>
+                <button class="buy-btn">Edit</button>
             </div>
 
             <!-- Product Image -->
@@ -60,11 +60,16 @@
             </div>
 
             <!-- Input for Buying -->
-            <div class="buy-input-container" id="buyInputContainer">
-                <label for="buyerInput">Enter quantity:</label>
-                <input type="number" id="buyerInput" placeholder="">
-                <button id="submitBuy">Submit</button>
-            </div>
+            <form method="post" action="/product/update" autocomplete="off">
+                <div class="buy-input-container" id="buyInputContainer">
+                        <label for="buyerInput">Edit Price:</label>
+                        <input type="text" id="priceInput" placeholder="Enter Price" name="price">
+                        <label for="locationInput">Edit Location</label>
+                        <input type="text" id="locationInput" placeholder="Enter Location" name="location">
+                        <input type="hidden" id="productId" name="productId">
+                        <button>Submit</button>
+                </div>
+            </form>
         </div>
     </div>
 </main>
@@ -77,6 +82,7 @@
         const buyButton = document.querySelector(".buy-btn");
         const buyInputContainer = document.getElementById('buyInputContainer');
         const submitBuyButton = document.getElementById("submitBuy");
+
 
         // Filter Elements
         const nameInput = document.getElementById('filterName');
@@ -94,6 +100,9 @@
         const popupSellerName = document.getElementById('popupSellerName');
         const popupSellerContact = document.getElementById('popupSellerContact');
         const popupSellerAddress = document.getElementById('popupSellerAddress');
+        const popupEditPrice = document.getElementById('priceInput');
+        const popupEditLocation = document.getElementById('locationInput');
+        const popupProductId = document.getElementById('productId');
         const productList = document.querySelector('.product-grid');
 
         // Filter Function
@@ -131,7 +140,6 @@
             if (!card) return;
 
             const product = <%- JSON.stringify(products) %>[card.dataset.key];
-            const farmer = <%- JSON.stringify(farmers) %>[card.dataset.sel];
 
             popupProductPosted.textContent = product.created;
             popupProductPhoto.src = card.querySelector('img').src;
@@ -139,9 +147,12 @@
             popupProductPrice.textContent = `Price: ${product.price}`;
             popupProductLocation.textContent = `Location: ${product.location}`;
             popupProductDescription.textContent = product.description;
-            popupSellerName.textContent = `Name: ${farmer.name}`;
-            popupSellerContact.textContent = `Contact: ${farmer.phone}`;
-            popupSellerAddress.textContent = `Address: ${farmer.address}`;
+            popupSellerName.textContent = `Name: <%= user.name %>`;
+            popupSellerContact.textContent = `Contact: <%= user.phone %>`;
+            popupSellerAddress.textContent = `Address: <%= user.address %>`;
+            popupEditPrice.value = product.price;
+            popupEditLocation.value = product.location;
+            popupProductId.value = product._id;
 
             productPopup.classList.add('show');
             document.body.style.overflow = 'hidden';
@@ -161,18 +172,4 @@
         });
     });
 
-    
-    
-
 </script>
-
-
-<!-- <div class="product-card">
-    <div class="product-photo">
-        <img src="/img/dashboard.jpg" alt="vegitable">
-    </div>
-    <div class="product-details">
-        <h3>Potato</h3>
-        <p>Price: 70</p>
-    </div>
-</div> -->
