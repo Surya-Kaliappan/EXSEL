@@ -33,7 +33,7 @@
             <div class="popup-actions">
                 <button id="closePopup">Back</button>
                 <p id="popupPosted" title="posted on"></p>
-                <button class="buy-btn">Buy</button>
+                <button class="buy-btn">order</button>
             </div>
 
             <!-- Product Image -->
@@ -60,11 +60,13 @@
             </div>
 
             <!-- Input for Buying -->
-            <div class="buy-input-container" id="buyInputContainer">
-                <label for="buyerInput">Enter quantity:</label>
-                <input type="number" id="buyerInput" placeholder="">
-                <button id="submitBuy">Submit</button>
-            </div>
+            <form method="post" action="/product/order" autocomplete="off">
+                <div class="buy-input-container" id="buyInputContainer">
+                    <label for="buyerInput">Enter quantity:</label>
+                    <input type="number" id="buyerInput" min="1" required>
+                    <button id="submitBuy">Submit</button>
+                </div>
+            </form>
         </div>
     </div>
 </main>
@@ -94,6 +96,7 @@
         const popupSellerName = document.getElementById('popupSellerName');
         const popupSellerContact = document.getElementById('popupSellerContact');
         const popupSellerAddress = document.getElementById('popupSellerAddress');
+        const popupQuantityNeed = document.getElementById('buyerInput');
         const productList = document.querySelector('.product-grid');
 
         // Filter Function
@@ -142,6 +145,8 @@
             popupSellerName.textContent = `Name: ${farmer.name}`;
             popupSellerContact.textContent = `Contact: ${farmer.phone}`;
             popupSellerAddress.textContent = `Address: ${farmer.address}`;
+            popupQuantityNeed.placeholder = `lesst than ${product.quantity}`;
+            popupQuantityNeed.max = product.quantity;
 
             productPopup.classList.add('show');
             document.body.style.overflow = 'hidden';
