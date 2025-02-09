@@ -1,0 +1,124 @@
+<main class="main-content">
+  <header class="header">
+      <h1>Product Tab</h1>
+  </header>
+  <div class="search-bar-container">
+      <input type="text" id="filterProduct" placeholder="Search by Name">
+      <input type="text" id="filterName" placeholder="Search by Seller">
+      <input type="text" id="filterPlace" placeholder="Search by Place">
+  </div>
+  <!-- Product Grid -->
+  <section class="product-grid">
+      
+      <% orders.forEach( (order, key) => { 
+        if(!order.sellerDetail.photo){
+            photo = "/img/default-farmer.png";
+        } else { photo = "/uploads/"+order.sellerDetail.photo; } %>
+          <div class="product-card" data-id="<%- order._id %>" data-key="<%= key %>">
+              <div class="product-photo">
+                  <img src="/uploads/<%- order.productDetail.photo %>" alt="<%- order.productDetail.name%>" >
+                  <h1>&nbsp;~&nbsp;</h1>
+                  <img src="<%= photo %>" alt="<%- order.sellerDetail.name%>" >
+              </div>
+              <div class="product-details">
+                  <h3 id="product-name"><%- order.productDetail.name %></h3>
+                  <div class="status">
+                    <p id="product-status" class="<%- order.status %>"><%- order.status %></p>
+                  </div>
+                  <input type="hidden" value="<%- order.productDetail.location %>" id="product-location">
+                  <input type="hidden" value="<%- order.sellerDetail.name %>" id="seller-name">
+              </div>
+          </div>
+      <% }) %>
+  </section>
+  <!-- Product Detail Popup -->
+  <div class="product-popup-container" id="productPopup">
+    <div class="product-popup">
+        <!-- Action Buttons -->
+        <div class="popup-actions">
+            <button id="closePopup">Back</button>
+        </div>
+
+        <!-- Product Image -->
+        <div class="product-image">
+            <img id="popupProductPhoto" src="" alt="Product">
+        </div>
+
+        <!-- Product Details -->
+        <div class="pop-product-details">
+            <h2 id="popupProductName"></h2>
+            <p class="price" id="popupProductPrice"></p>
+            <p class="price" id="popupProductLocation"></p>
+            <div class="description">
+                <h3>Description :</h3>
+                <p id="popupProductDescription"></p>
+            </div>
+
+            <div class="seller-info">
+                <h3>Seller Information:</h3>
+                <p id="popupSellerName"></p>
+                <p id="popupSellerContact"></p>
+                <p id="popupSellerAddress"></p>
+            </div>
+        </div>
+    </div>
+  </div>
+</main>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const productPopup = document.getElementById('productPopup');
+        const productCards = document.querySelectorAll('.product-card');
+
+        // Popup Fields
+        const productList = document.querySelector('.product-grid');
+        const closePopup = document.getElementById('closePopup');
+        const popupProductPhoto = document.getElementById('popupProductPhoto');
+
+        // Filter Elements
+        const productInput = document.getElementById('filterProduct');
+        const nameInput = document.getElementById("filterName");
+        const placeInput = document.getElementById("filterPlace");
+
+        // Filter Functions
+        function filterProducts(){
+            productCards.forEach((card) => {
+                const productName = card.querySelector('#product-name').textContent.toLowerCase();
+                const sellerName = card.querySelector('#seller-name').value.toLowerCase();
+                const location = card.querySelector('#product-location').value.toLowerCase();
+
+                const matchesProduct = !productInput.value || productName.includes(productInput.value.trim().toLowerCase());
+                const matchesName = !nameInput.value || sellerName.includes(nameInput.value.trim().toLowerCase());
+                const matchesLocation = !placeInput.value || location.includes(placeInput.value.trim().toLowerCase());
+
+                card.style.display = matchesProduct && matchesName && matchesLocation ? 'block' : 'none';
+            });
+        }
+
+        function execute(event){
+            if(event.code == "Enter") {
+                filterProducts();
+            }
+        }
+
+        productInput.addEventListener('keydown', execute);
+        nameInput.addEventListener('keydown', execute);
+        placeInput.addEventListener('keydown', execute);
+
+        // productList.addEventListener('click', (event) => {
+        //     const card = event.target.closest('.product-card');
+        //     if (!card) return;
+            
+        //     const order = <%- JSON.stringify(orders) %>[card.dataset.key];
+        //     popupProductPhoto.src = "/uploads/"+order.productDetail.photo;
+        //     productPopup.classList.add('show');
+        //     document.body.style.overflow = 'hidden';
+        // });
+
+        closePopup.addEventListener('click', () => {
+            productPopup.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        });
+    });
+</script>

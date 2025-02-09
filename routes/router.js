@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
 const Product = require('../models/product');
+const Order = require('../models/order');
 const multer = require('multer');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
@@ -26,8 +27,6 @@ var storage = multer.diskStorage({
 var upload = multer({
     storage: storage,
 }).single('image');  // 'image' is a 'name' field from input tag
-
-// Insert Data in Database
 
 router.use(express.urlencoded({extended: true}));
 router.use(express.json());
@@ -89,7 +88,10 @@ router.post("/reset", async (req, res) => {
     if(user){
         const encryptedData = encryptLinkData(user._id);
         const link = `${req.protocol}://${req.headers.host}/change?step=${encodeURIComponent(encryptedData)}`;
-        // await sendEmail(email, link);
+        const content = `<p>The Like could be expire in 5 minutes.
+            Click the link below to reset your password:</p>
+            <a href="${link}">${link}</a>`
+        await sendEmail(email, "Reset Password", content);
         console.log(`Reset Link: ${link}`);
         res.status(200).send("Link has been sented to the Registered Email. <a href='/'>Click to Login</a>")
     } else {
@@ -217,6 +219,32 @@ router.post('/product/update', authToken, async (req, res) => {
     }
 });
 
+router.post('/product/order', authToken, async (req, res) => {
+    try{
+        // const check = await sendEmail(req.auth_user.email, "Reset Password", "content");
+        const check = true;
+        if(!(check)) {
+            return res.send("Something went wrong in sending request");
+        }
+        const currentDate = getDate();
+        const product = await Product.findById(req.body.productId, { seller: 1, quantity: 1 });
+        const order = new Order({
+            product: product._id,
+            seller: product.seller,
+            buyer: req.auth_user._id,
+            quantity: req.body.quantity,
+            requested: currentDate,
+        });
+        const updated = String(parseFloat(product.quantity)-(parseFloat(order.quantity)));
+        await order.save();
+        await Product.findByIdAndUpdate(product._id, { quantity : updated })
+        res.send("Request has Sended, Kindly Wait for Acceptance.");
+    } catch (error) {
+        res.status(400).send("Product has failed to order due to Server Error...");
+        console.log(error);
+    }
+});
+
 //---------------------------------------- functions -------------------------------------------------------------------
 
 function getDate(){
@@ -234,7 +262,7 @@ async function getUser(id) {
     }
 }
 
-async function sendEmail(recipientEmail, link) {
+async function sendEmail(recipientEmail, subject, content) {
     try{
         const transporter = nodemailer.createTransport({
             service: 'Gmail',
@@ -247,15 +275,18 @@ async function sendEmail(recipientEmail, link) {
         const mailOptions = {
             from: '"Smart Agri Connector" <noreply@smartariconnectoru>',
             to: recipientEmail,
-            subject: 'Reset Password',
-            html: `<p>The Like could be expire in 5 minutes.
-            Click the link below to reset your password:</p>
-                   <a href="${link}">${link}</a>`,
+            subject: subject,
+            html: content,
         };
 
         const info = await transporter.sendMail(mailOptions);
+        if(!info){
+            return false;
+        }
+        return true;
     } catch (error) {
         console.log('Error sending email: ',error);
+        return false;
     }
 }
 
@@ -305,7 +336,7 @@ async function authToken(req, res, next){
     }
 }
 
-//--------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------
 
 router.get("/", (req, res) => {
     if(req.cookies.json){
@@ -420,6 +451,91 @@ router.get('/dashboard/product/own', authToken, async (req, res) => {
     const products = await Product.find({ seller: user._id });
     res.render('dashboard', {
         head: head_name, title: "Dashboard", user, board: "ownProduct", products
+    });
+});
+
+router.get('/product/orders', authToken, async (req, res) => {
+    const user = req.auth_user;
+    const orders = await Order.aggregate([
+        { $match: {buyer: user._id} },
+        {
+            $lookup: {
+                from: "products",
+                localField: "product",
+                foreignField: "_id",
+                as: "productDetail"
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "seller",
+                foreignField: "_id",
+                as: "sellerDetail"
+            }
+        },
+        { $unwind: "$productDetail"},
+        { $unwind: "$sellerDetail"},
+        {
+            $project: {
+                "productDetail.photo":1,
+                "sellerDetail.photo":1,
+                "productDetail.name":1,
+                "productDetail.location":1,
+                "sellerDetail.name":1,
+                status: 1,
+                requested: 1,
+            }
+        },
+        {
+            $sort: { status: -1, requested: -1 }
+        },
+    ]);
+
+
+    res.render('dashboard', {
+        head: head_name, title: "Dashboard", user, board: "orders", orders
+    });
+});
+
+router.get('/product/request', authToken, async (req, res) => {
+    const user = req.auth_user;
+    const requests = await Order.aggregate([
+        { $match: {seller: user._id}},
+        {
+            $lookup: {
+                from: "products",
+                localField: "product",
+                foreignField: "_id",
+                as: "productDetail"
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "buyer",
+                foreignField: "_id",
+                as: "buyerDetail"
+            }
+        },
+        { $unwind: "$productDetail" },
+        { $unwind: "$buyerDetail" },
+        {
+            $project: {
+                "productDetail.photo": 1,
+                "buyerDetail.photo": 1,
+                "productDetail.name": 1,
+                "productDetail.location": 1,
+                "buyerDetail.name": 1,
+                "buyerDetail.phone": 1,
+                "buyerDetail.address": 1,
+                status: 1,
+                requested: 1,
+            }
+        }
+    ]);
+    res.render('dashboard', {
+        head: head_name, title: "Dashboard", user, board: "request", requests
     });
 });
 

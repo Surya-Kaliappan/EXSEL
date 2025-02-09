@@ -60,11 +60,12 @@
             </div>
 
             <!-- Input for Buying -->
-            <form method="post" action="/product/order" autocomplete="off">
+            <form method="post" action="/product/order" autocomplete="off" id="buy">
                 <div class="buy-input-container" id="buyInputContainer">
                     <label for="buyerInput">Enter quantity:</label>
-                    <input type="number" id="buyerInput" min="1" required>
-                    <button id="submitBuy">Submit</button>
+                    <input type="number" id="buyerInput" name="quantity" min="1" required>
+                    <input type="hidden" id="productId" name="productId">
+                    <button type="submit" id="submitBuy">Submit</button>                 
                 </div>
             </form>
         </div>
@@ -97,6 +98,7 @@
         const popupSellerContact = document.getElementById('popupSellerContact');
         const popupSellerAddress = document.getElementById('popupSellerAddress');
         const popupQuantityNeed = document.getElementById('buyerInput');
+        const popupProductId = document.getElementById('productId');
         const productList = document.querySelector('.product-grid');
 
         // Filter Function
@@ -147,6 +149,7 @@
             popupSellerAddress.textContent = `Address: ${farmer.address}`;
             popupQuantityNeed.placeholder = `lesst than ${product.quantity}`;
             popupQuantityNeed.max = product.quantity;
+            popupProductId.value = product._id;
 
             productPopup.classList.add('show');
             document.body.style.overflow = 'hidden';
@@ -164,20 +167,11 @@
             document.body.style.overflow = 'auto';
             buyInputContainer.classList.remove('show');
         });
+
+        window.addEventListener('pageshow', (event) => {
+            if(event.persisted) {
+                document.getElementById('buy').reset();
+            }
+        });
     });
-
-    
-    
-
 </script>
-
-
-<!-- <div class="product-card">
-    <div class="product-photo">
-        <img src="/img/dashboard.jpg" alt="vegitable">
-    </div>
-    <div class="product-details">
-        <h3>Potato</h3>
-        <p>Price: 70</p>
-    </div>
-</div> -->

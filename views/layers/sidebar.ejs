@@ -20,7 +20,7 @@
         <% } %>
     </div>
     <h2><%= head %></h2>
-    <% if(board === 'home' || board === 'profile') { %>
+    <% if(board === 'home' || board === 'profile' ) { %>
         <ul id="options">
             <% if (!(board === 'home')){ %>
                 <li><a href="/dashboard/home">Home</a></li>
@@ -40,7 +40,7 @@
         <% } %>
         <li class="back"><a onclick="shiftPanel('options','photo-options','block','none')">Back</a></li>
     </ul>
-    <% if(board === 'product' || board === 'addProduct' || board === 'ownProduct') { %>
+    <% if(board === 'product' || board === 'addProduct' || board === 'ownProduct' || board === 'orders' || board === 'request') { %>
         <ul id="options">
             <% if(!(board === 'product')) { %>
                 <li><a href="/dashboard/product">View Products</a></li>
@@ -52,10 +52,13 @@
                 <% if(!(board === 'ownProduct')) { %>
                     <li><a href="/dashboard/product/own">Own Products</a></li>
                 <% } %>
-                <li><a>Give Rent</a></li>
-                <li><a>Take Rent</a></li>
+                <% if(!(board === 'request')) { %>
+                    <li><a href="/product/request">Requested Product</a></li>
+                <% } %>
             <% } %>
-            <li><a>View Orders</a></li>
+            <% if(!(board === 'orders')) { %>
+            <li><a href="/product/orders">View Orders</a></li>
+            <% } %>
             <li class="back"><a href="/dashboard/home">Back</a></li>
         </ul>
     <% } %>

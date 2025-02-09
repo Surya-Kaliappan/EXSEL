@@ -28,6 +28,9 @@ const userScheme = new mongoose.Schema({
     photo: {
         type: String,
     },
+    endpoint: {
+        type: Object,
+    },
     created: {
         type: Date,
         required: true,

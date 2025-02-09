@@ -1,25 +1,30 @@
 const mongoose = require('mongoose');
 const orderScheme = new mongoose.Schema({
     product: {
-        type: String,
+        type: mongoose.Types.ObjectId,
         required: true,
     },
     seller: {
-        type: String,
+        type: mongoose.Types.ObjectId,
         required: true,
     },
     buyer: {
-        type: String,
+        type: mongoose.Types.ObjectId,
         required: true,
     },
     quantity: {
         type: String,
         required: true,
     },
-    created: {
+    status: {
+        type: String,
+        required: true,
+        default: "0"
+    },
+    requested: {
         type: String,
         required: true,
     }
 });
 
-module.exports = mongoose.model("Orders", orderScheme);
+module.exports = mongoose.model("Order", orderScheme);

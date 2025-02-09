@@ -1,0 +1,106 @@
+<main class="main-content">
+    <header class="header">
+        <h1>Product Tab</h1>
+    </header>
+    <div class="search-bar-container">
+        <input type="text" id="filterProduct" placeholder="Search by Name">
+        <input type="text" id="filterName" placeholder="Search by Seller">
+        <input type="text" id="filterPlace" placeholder="Search by Place">
+    </div>
+    <!-- Product Grid -->
+    <section class="product-grid">
+        
+        <% requests.forEach( (request, key) => { 
+          if(!request.buyerDetail.photo){
+              photo = "/img/default-farmer.png";
+          } else { photo = "/uploads/"+request.buyerDetail.photo; } %>
+            <div class="product-card" data-id="<%- request._id %>" data-key="<%= key %>">
+                <div class="product-photo">
+                    <img id="popup-product-image" src="/uploads/<%- request.productDetail.photo %>" alt="<%- request.productDetail.name%>" >
+                    <h1>&nbsp;~&nbsp;</h1>
+                    <img id="popup-buyer-photo" src="<%= photo %>" alt="<%- request.buyerDetail.name%>" >
+                </div>
+                <div class="product-details">
+                    <h3 id="product-name"><%- request.productDetail.name %></h3>
+                    <div class="status">
+                      <p id="product-status" class="<%- request.status %>"><%- request.status %></p>
+                    </div>
+                    <input type="hidden" value="<%- request.productDetail.location %>" id="product-location">
+                    <input type="hidden" value="<%- request.buyerDetail.name %>" id="buyer-name">
+                </div>
+            </div>
+        <% }) %>
+    </section>
+    <!-- Product Detail Popup -->
+  <div class="product-popup-container" id="productPopup">
+    <div class="product-popup">
+        <!-- Action Buttons -->
+        <div class="popup-actions">
+            <button id="closePopup">Back</button>
+            <button class="buy-btn">accept</button>
+        </div>
+
+        <!-- Product Image -->
+        <div class="product-img">
+            <div class="product-img-container">
+                <img id="popupProductPhoto" alt="Product">
+                <p class="product-name" id="popup-product-name">--</p>
+            </div>
+            <div class="product-img-container">
+                <img id="popupBuyerPhoto" alt="Buyer">
+                <p class="buyer-name" id="popup-buyer-name">--</p>
+            </div>
+        </div>
+
+        <!-- Product Details -->
+        <div class="seller-info">
+            <h3>Buyer Information</h3>
+            <p id="popupSellerName"></p>
+            <p id="popupSellerContact"></p>
+            <p id="popupSellerAddress"></p>
+        </div>
+    </div>
+  </div>
+</main>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+        const productPopup = document.getElementById('productPopup');
+        const closePopup = document.getElementById('closePopup');
+
+        // Popup Fields
+        const popupProductPhoto = document.getElementById('popupProductPhoto');
+        const popupBuyerPhoto = document.getElementById('popupBuyerPhoto');
+        const popupBuyerName = document.getElementById('popupSellerName');
+        const popupBuyerContact = document.getElementById('popupSellerContact');
+        const popupBuyerAddress = document.getElementById('popupSellerAddress');
+        const product_name = document.getElementById('popup-product-name');
+        const buyer_name = document.getElementById('popup-buyer-name');
+        const productList = document.querySelector('.product-grid');
+
+        productList.addEventListener('click', (event) => {
+            const card = event.target.closest('.product-card');
+            if (!card) return;
+
+            const product = <%- JSON.stringify(requests) %>[card.dataset.key];
+
+            popupProductPhoto.src = document.getElementById('popup-product-image').src;
+            popupBuyerPhoto.src = document.getElementById('popup-buyer-photo').src;
+            product_name.textContent = product.productDetail.name;
+            buyer_name.textContent = product.buyerDetail.name;
+            popupBuyerName.textContent = "Name: "+product.buyerDetail.name;
+            popupBuyerContact.textContent = "Contact: "+product.buyerDetail.phone;
+            popupBuyerAddress.textContent = "Address: "+product.buyerDetail.address;
+            productPopup.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        });
+
+        closePopup.addEventListener('click', () => {
+            productPopup.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        });        
+
+    });
+</script>
