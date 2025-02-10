@@ -12,7 +12,7 @@
     <section class="product-grid">
         
         <% products.forEach( (product, key) => { 
-            if(!(product.seller == user._id)) { %>
+            if(!(product.seller == user._id) && !(product.quantity == product.ordered)) { %>
             <div class="product-card" data-id="<%- product._id %>" data-key="<%= key %>" data-sel="<%- product.seller %>">
                 <div class="product-photo">
                     <img src="/uploads/<%- product.photo %>" alt="<%- product.name%>" >
@@ -32,7 +32,6 @@
             <!-- Action Buttons -->
             <div class="popup-actions">
                 <button id="closePopup">Back</button>
-                <p id="popupPosted" title="posted on"></p>
                 <button class="buy-btn">order</button>
             </div>
 
@@ -49,6 +48,8 @@
                 <div class="description">
                     <h3>Description :</h3>
                     <p id="popupProductDescription"></p>
+                    <h3>Posted On</h3>
+                    <p id="popupPosted"></p>
                 </div>
 
                 <div class="seller-info">
@@ -137,6 +138,7 @@
 
             const product = <%- JSON.stringify(products) %>[card.dataset.key];
             const farmer = <%- JSON.stringify(farmers) %>[card.dataset.sel];
+            const available = String(parseFloat(product.quantity) - (parseFloat(product.ordered)));
 
             popupProductPosted.textContent = product.created;
             popupProductPhoto.src = card.querySelector('img').src;
@@ -147,7 +149,7 @@
             popupSellerName.textContent = `Name: ${farmer.name}`;
             popupSellerContact.textContent = `Contact: ${farmer.phone}`;
             popupSellerAddress.textContent = `Address: ${farmer.address}`;
-            popupQuantityNeed.placeholder = `lesst than ${product.quantity}`;
+            popupQuantityNeed.placeholder = `lesst than ${available}`;
             popupQuantityNeed.max = product.quantity;
             popupProductId.value = product._id;
 
@@ -159,6 +161,7 @@
         buyButton.addEventListener("click", () => {
             buyInputContainer.classList.add("show");
             buyInputContainer.scrollIntoView();
+            popupQuantityNeed.focus();
         });
 
         // Close popup

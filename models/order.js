@@ -19,11 +19,14 @@ const orderScheme = new mongoose.Schema({
     status: {
         type: String,
         required: true,
-        default: "0"
+        default: "pending"
     },
     requested: {
         type: String,
         required: true,
+    },
+    code: {
+        type: String,
     }
 });
 

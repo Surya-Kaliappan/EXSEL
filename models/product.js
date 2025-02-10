@@ -12,6 +12,11 @@ const productScheme = new mongoose.Schema({
         type: String,
         required: true,
     },
+    ordered: {
+        type: String,
+        required: true,
+        default: "0",
+    },
     location: {
         type: String,
         required: true,

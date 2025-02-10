@@ -32,7 +32,7 @@
             <!-- Action Buttons -->
             <div class="popup-actions">
                 <button id="closePopup">Back</button>
-                <p id="popupPosted" title="posted on"></p>
+                <!-- <p id="popupPosted" title="posted on"></p> -->
                 <button class="buy-btn">Edit</button>
             </div>
 
@@ -45,17 +45,15 @@
             <div class="pop-product-details">
                 <h2 id="popupProductName"></h2>
                 <p class="price" id="popupProductPrice"></p>
+                <p class="price" id="popupProductStock"></p>
                 <p class="price" id="popupProductLocation"></p>
                 <div class="description">
                     <h3>Description :</h3>
                     <p id="popupProductDescription"></p>
-                </div>
-
-                <div class="seller-info">
-                    <h3>Seller Information:</h3>
-                    <p id="popupSellerName"></p>
-                    <p id="popupSellerContact"></p>
-                    <p id="popupSellerAddress"></p>
+                    <h3>Updated On</h3>
+                    <p id="popupUpdated"></p>
+                    <h3>Posted On</h3>
+                    <p id="popupPosted"></p>
                 </div>
             </div>
 
@@ -92,14 +90,13 @@
 
         // Popup Fields
         const popupProductPosted = document.getElementById('popupPosted');
+        const popupProductUpdated = document.getElementById('popupUpdated');
         const popupProductPhoto = document.getElementById('popupProductPhoto');
         const popupProductName = document.getElementById('popupProductName');
         const popupProductPrice = document.getElementById('popupProductPrice');
+        const popupProductStock = document.getElementById('popupProductStock');
         const popupProductLocation = document.getElementById('popupProductLocation');
         const popupProductDescription = document.getElementById('popupProductDescription');
-        const popupSellerName = document.getElementById('popupSellerName');
-        const popupSellerContact = document.getElementById('popupSellerContact');
-        const popupSellerAddress = document.getElementById('popupSellerAddress');
         const popupEditPrice = document.getElementById('priceInput');
         const popupEditLocation = document.getElementById('locationInput');
         const popupProductId = document.getElementById('productId');
@@ -142,14 +139,13 @@
             const product = <%- JSON.stringify(products) %>[card.dataset.key];
 
             popupProductPosted.textContent = product.created;
+            popupProductUpdated.textContent = product.last_updated;
             popupProductPhoto.src = card.querySelector('img').src;
             popupProductName.textContent = product.name;
-            popupProductPrice.textContent = `Price: ${product.price}`;
+            popupProductPrice.textContent = `Price (Rs.): ${product.price}`;
+            popupProductStock.textContent = `Stock (kg): ${product.quantity}`;
             popupProductLocation.textContent = `Location: ${product.location}`;
             popupProductDescription.textContent = product.description;
-            popupSellerName.textContent = `Name: <%= user.name %>`;
-            popupSellerContact.textContent = `Contact: <%= user.phone %>`;
-            popupSellerAddress.textContent = `Address: <%= user.address %>`;
             popupEditPrice.value = product.price;
             popupEditLocation.value = product.location;
             popupProductId.value = product._id;

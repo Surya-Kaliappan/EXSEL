@@ -227,7 +227,7 @@ router.post('/product/order', authToken, async (req, res) => {
             return res.send("Something went wrong in sending request");
         }
         const currentDate = getDate();
-        const product = await Product.findById(req.body.productId, { seller: 1, quantity: 1 });
+        const product = await Product.findById(req.body.productId, { seller: 1, quantity: 1, ordered: 1 });
         const order = new Order({
             product: product._id,
             seller: product.seller,
@@ -235,13 +235,74 @@ router.post('/product/order', authToken, async (req, res) => {
             quantity: req.body.quantity,
             requested: currentDate,
         });
-        const updated = String(parseFloat(product.quantity)-(parseFloat(order.quantity)));
+        const updated = String(parseFloat(product.ordered) + (parseFloat(order.quantity)));
+        if(parseFloat(updated) > parseFloat(product.quantity)){
+            return res.send("Out of Stock Quantity... <a href='/dashboard/product'>Click to Back</a>"+updated+"-"+product.quantity)
+        } else{
         await order.save();
-        await Product.findByIdAndUpdate(product._id, { quantity : updated })
-        res.send("Request has Sended, Kindly Wait for Acceptance.");
+        await Product.findByIdAndUpdate(product._id, { ordered : updated })
+        // res.send("Request has Sended, Kindly Wait for Acceptance. <a href='/dashboard/product'>Click to Back</a>");
+        res.redirect('/dashboard/product');
+        }
     } catch (error) {
         res.status(400).send("Product has failed to order due to Server Error...");
         console.log(error);
+    }
+});
+
+router.post('/product/result', async (req, res) => {
+    try{
+        const result = req.body;
+        const order = await Order.findById(result.orderId);
+        if(result.btn === 'accepted') {
+            const salt = await bcrypt.genSalt(10);
+            const product = await Product.findById(order.product, { quantity: 1, ordered: 1});
+            const quantity = String(parseFloat(product.quantity) - (parseFloat(order.quantity)));
+            const ordered = String(parseFloat(product.ordered) - (parseFloat(order.quantity)));
+            const productUpdated = await Product.findByIdAndUpdate(product._id, 
+                {
+                    quantity: quantity,
+                    ordered: ordered,
+                },
+                { new: true},
+            );
+            if(productUpdated) {
+                await Order.findByIdAndUpdate(order._id, 
+                    {
+                        status: "accepted",
+                        code: generateCode(),
+                    },
+                    { new: true },
+                );
+                res.redirect('/product/request');
+            } else {
+                res.send("Failed to Accept...");
+            }
+        } else { 
+            res.send("reject");
+        }
+    } catch (error) {
+        res.status(400).send("Server Issue...");
+        console.log(error);
+    }
+});
+
+router.post('/order/verify', async (req, res) => {
+    const code = await Order.findById(req.body.orderID, { product: 1, code: 1, quantity: 1 });
+    if(req.body.code === code.code){
+        
+        await Order.findByIdAndUpdate(code._id, 
+            {
+                status: "completed",
+            },
+            { new : true },
+        );
+        res.redirect('/product/request');
+
+        // res.send(product.quantity);
+    }
+    else {
+        res.send("Failed");
     }
 });
 
@@ -251,6 +312,11 @@ function getDate(){
     var date = new Date();
     var currentDate = date.getDate()+'-'+(date.getMonth()+1)+'-'+date.getFullYear()+' '+date.getHours()+':'+date.getMinutes()+':'+date.getSeconds();
     return currentDate;
+}
+
+function generateCode(){
+    var val = Math.floor(1000 + Math.random() * 9999);
+    return val;
 }
 
 async function getUser(id) {
@@ -324,7 +390,8 @@ function decryptLinktData(encryptedData){
 async function authToken(req, res, next){
     const token = req.cookies.json;
     if(!token) {
-        return res.status(401).send('Access denied, Please <a href="/logout">log in</a>...');
+        // return res.status(401).send('Session Expired, Please <a href="/logout">log in</a>...');
+        return res.redirect('/logout');
     }
     try{
         const decode = jwt.verify(token, process.env.BYTPASS);
@@ -483,8 +550,12 @@ router.get('/product/orders', authToken, async (req, res) => {
                 "productDetail.name":1,
                 "productDetail.location":1,
                 "sellerDetail.name":1,
+                "sellerDetail.phone":1,
+                "sellerDetail.address":1,
+                quantity: 1,
                 status: 1,
                 requested: 1,
+                code: 1,
             }
         },
         {
@@ -492,9 +563,8 @@ router.get('/product/orders', authToken, async (req, res) => {
         },
     ]);
 
-
     res.render('dashboard', {
-        head: head_name, title: "Dashboard", user, board: "orders", orders
+        head: head_name, title: "Dashboard", user, board: "orders", orders,
     });
 });
 
@@ -521,6 +591,20 @@ router.get('/product/request', authToken, async (req, res) => {
         { $unwind: "$productDetail" },
         { $unwind: "$buyerDetail" },
         {
+            $addFields: {
+                statusOrder: {
+                    $switch: {
+                        branches: [
+                            { case: { $eq: ["$status", "pending"] }, then: 0},
+                            { case: { $eq: ["$status", "accepted"] }, then: 1 },
+                            { case: { $eq: ["$status", "completed"] }, then: 2 }
+                        ],
+                        default: 3
+                    }
+                }
+            }
+        },
+        {
             $project: {
                 "productDetail.photo": 1,
                 "buyerDetail.photo": 1,
@@ -529,10 +613,15 @@ router.get('/product/request', authToken, async (req, res) => {
                 "buyerDetail.name": 1,
                 "buyerDetail.phone": 1,
                 "buyerDetail.address": 1,
+                quantity: 1,
                 status: 1,
                 requested: 1,
+                statusOrder: 1
             }
-        }
+        },
+        {
+            $sort: { statusOrder: 1, requested: -1 }
+        },
     ]);
     res.render('dashboard', {
         head: head_name, title: "Dashboard", user, board: "request", requests

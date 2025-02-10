@@ -1,6 +1,6 @@
 <main class="main-content">
   <header class="header">
-      <h1>Product Tab</h1>
+      <h1>Orders</h1>
   </header>
   <div class="search-bar-container">
       <input type="text" id="filterProduct" placeholder="Search by Name">
@@ -37,29 +37,33 @@
         <!-- Action Buttons -->
         <div class="popup-actions">
             <button id="closePopup">Back</button>
+            <button class="buy-btn" id="seenbtn" style="display: none;">Seen</button>
         </div>
 
         <!-- Product Image -->
-        <div class="product-image">
-            <img id="popupProductPhoto" src="" alt="Product">
+        <div class="product-img">
+            <div class="product-img-container">
+                <img id="popupProductPhoto" alt="Product">
+                <p class="product-name" id="popup-product-name">--</p>
+            </div>
+            <div class="product-img-container">
+                <img id="popupSellerPhoto" alt="Seller">
+                <p class="buyer-name" id="popup-seller-name">--</p>
+            </div>
         </div>
 
         <!-- Product Details -->
         <div class="pop-product-details">
-            <h2 id="popupProductName"></h2>
-            <p class="price" id="popupProductPrice"></p>
-            <p class="price" id="popupProductLocation"></p>
-            <div class="description">
-                <h3>Description :</h3>
-                <p id="popupProductDescription"></p>
-            </div>
-
+            <p class="price" id="popupRequestedQuantity"></p>
             <div class="seller-info">
-                <h3>Seller Information:</h3>
+                <h3>Seller Information</h3>
                 <p id="popupSellerName"></p>
                 <p id="popupSellerContact"></p>
                 <p id="popupSellerAddress"></p>
             </div>
+        </div>
+        <div class="buy-input-container" id="stage2">
+            <p style="font-size: 20px; font-weight: 800;" id="code"></p>
         </div>
     </div>
   </div>
@@ -70,11 +74,22 @@
     document.addEventListener('DOMContentLoaded', () => {
         const productPopup = document.getElementById('productPopup');
         const productCards = document.querySelectorAll('.product-card');
+        const seenbtn = document.getElementById('seenbtn');
 
         // Popup Fields
         const productList = document.querySelector('.product-grid');
         const closePopup = document.getElementById('closePopup');
         const popupProductPhoto = document.getElementById('popupProductPhoto');
+        const popupSellerPhoto = document.getElementById('popupSellerPhoto');
+        const product_name = document.getElementById('popup-product-name');
+        const seller_name = document.getElementById('popup-seller-name');
+        const popupSellerName = document.getElementById('popupSellerName');
+        const popupSellerContact = document.getElementById('popupSellerContact');
+        const popupSellerAddress = document.getElementById('popupSellerAddress');
+        const requestQuantity = document.getElementById('popupRequestedQuantity');
+        const productPhoto = document.getElementById('product-photo');
+        const sellerPhoto = document.getElementById('seller-photo');
+        const code = document.getElementById('code');
 
         // Filter Elements
         const productInput = document.getElementById('filterProduct');
@@ -106,19 +121,47 @@
         nameInput.addEventListener('keydown', execute);
         placeInput.addEventListener('keydown', execute);
 
-        // productList.addEventListener('click', (event) => {
-        //     const card = event.target.closest('.product-card');
-        //     if (!card) return;
+        productList.addEventListener('click', (event) => {
+            const card = event.target.closest('.product-card');
+            if (!card) return;
             
-        //     const order = <%- JSON.stringify(orders) %>[card.dataset.key];
-        //     popupProductPhoto.src = "/uploads/"+order.productDetail.photo;
-        //     productPopup.classList.add('show');
-        //     document.body.style.overflow = 'hidden';
-        // });
+            const order = <%- JSON.stringify(orders) %>[card.dataset.key];
+            if(order.sellerDetail.photo){
+                popupSellerPhoto.src = '/uploads/'+order.sellerDetail.photo;
+            } else {
+                popupSellerPhoto.src = '/img/default-farmer.png';
+            }
+            popupProductPhoto.src = '/uploads/'+order.productDetail.photo;
+            product_name.textContent = order.productDetail.name;
+            seller_name.textContent = order.sellerDetail.name;
+            requestQuantity.textContent = `Requested Quantity (kg): ${order.quantity}`;
+            popupSellerName.textContent = "Name: "+order.sellerDetail.name;
+            popupSellerContact.textContent = "Contact: "+order.sellerDetail.phone;
+            popupSellerAddress.textContent = "Address: "+order.sellerDetail.address;
+            code.textContent = `Code : ${order.code}`;
+            productPopup.classList.add('show');
+            document.body.style.overflow = 'hidden';
+
+            const status = order.status;
+            if(status === 'accepted') {
+                seenbtn.style.display = 'block';
+            }
+        });
+
+        seenbtn.addEventListener('click', () => {
+            stage2.classList.add("show");
+            stage2.scrollIntoView();
+        });
 
         closePopup.addEventListener('click', () => {
             productPopup.classList.remove('show');
             document.body.style.overflow = 'auto';
+        });
+
+        window.addEventListener('pageshow', (event) => {
+            if(event.persisted) {
+                location.reload();
+            }
         });
     });
 </script>
