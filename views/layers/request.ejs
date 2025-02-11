@@ -2,11 +2,11 @@
     <header class="header">
         <h1>Requests box</h1>
     </header>
-    <div class="search-bar-container">
+    <!-- <div class="search-bar-container">
         <input type="text" id="filterProduct" placeholder="Search by Name">
         <input type="text" id="filterName" placeholder="Search by Seller">
         <input type="text" id="filterPlace" placeholder="Search by Place">
-    </div>
+    </div> -->
     <!-- Product Grid -->
     <section class="product-grid">
         
@@ -56,9 +56,11 @@
         <!-- Product Details -->
         <div class="pop-product-details">
             <p class="price" id="popupRequestedQuantity"></p>
+            <p class="price" id="popupProductPrice"></p>
             <div class="seller-info">
                 <h3>Buyer Information</h3>
                 <p id="popupSellerName"></p>
+                <p id="type"></p>
                 <p id="popupSellerContact"></p>
                 <p id="popupSellerAddress"></p>
             </div>
@@ -98,9 +100,11 @@
         const popupBuyerName = document.getElementById('popupSellerName');
         const popupBuyerContact = document.getElementById('popupSellerContact');
         const popupBuyerAddress = document.getElementById('popupSellerAddress');
+        const type = document.getElementById('type');
         const product_name = document.getElementById('popup-product-name');
         const buyer_name = document.getElementById('popup-buyer-name');
         const requestQuantity = document.getElementById('popupRequestedQuantity');
+        const productPrice = document.getElementById('popupProductPrice');
         const productList = document.querySelector('.product-grid');
         const orderId = document.getElementById('orderId');
         const orderID = document.getElementById('orderID');
@@ -120,9 +124,12 @@
             product_name.textContent = product.productDetail.name;
             buyer_name.textContent = product.buyerDetail.name;
             requestQuantity.textContent = `Requested Quantity (kg): ${product.quantity}`;
+            productPrice.textContent = `Product Price (Rs): ${product.productDetail.price}`;
             popupBuyerName.textContent = "Name: "+product.buyerDetail.name;
             popupBuyerContact.textContent = "Contact: "+product.buyerDetail.phone;
             popupBuyerAddress.textContent = "Address: "+product.buyerDetail.address;
+            const role = product.buyerDetail.role;
+            type.textContent = "Account Type: "+role.charAt(0).toUpperCase()+role.slice(1);
             orderId.value = product._id;
             orderID.value = product._id;
             productPopup.classList.add('show');
@@ -130,10 +137,15 @@
 
             const status = product.status;
             if(status === 'pending') {
-                rejectbtn.style.display = 'block';
+                // rejectbtn.style.display = 'block';
                 stage1.classList.add("show");
             } else if(status === 'accepted') {
                 seenbtn.style.display = 'block';
+            } else if(status === 'completed') {
+                rejectbtn.style.display = 'none';
+                stage1.classList.remove("show");
+                seenbtn.style.display = 'none';
+                stage2.classList.remove("show");
             }
         });
 

@@ -10,8 +10,12 @@
     </div>
     <!-- Product Grid -->
     <section class="product-grid">
-        <% products.forEach( (product, key) => { %>
-            <div class="product-card" data-id="<%- product._id %>" data-key="<%= key %>" data-sel="<%- product.seller %>">
+        <% products.forEach( (product, key) => {
+            id = "product-card";
+            if(product.quantity == '0'){
+                id = "product-card finish"
+            } %>
+            <div class="<%= id %>" data-id="<%- product._id %>" data-key="<%= key %>" data-sel="<%- product.seller %>">
                 <div class="product-photo">
                     <img src="/uploads/<%- product.photo %>" alt="<%- product.name%>" >
                 </div>

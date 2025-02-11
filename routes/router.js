@@ -302,7 +302,7 @@ router.post('/order/verify', async (req, res) => {
         // res.send(product.quantity);
     }
     else {
-        res.send("Failed");
+        res.send("Invalid Code.. Try Again...");
     }
 });
 
@@ -544,6 +544,20 @@ router.get('/product/orders', authToken, async (req, res) => {
         { $unwind: "$productDetail"},
         { $unwind: "$sellerDetail"},
         {
+            $addFields: {
+                statusOrder: {
+                    $switch: {
+                        branches: [
+                            { case: { $eq: ["$status", "pending"] }, then: 0},
+                            { case: { $eq: ["$status", "accepted"] }, then: 1 },
+                            { case: { $eq: ["$status", "completed"] }, then: 2 }
+                        ],
+                        default: 3
+                    }
+                }
+            }
+        },
+        {
             $project: {
                 "productDetail.photo":1,
                 "sellerDetail.photo":1,
@@ -552,6 +566,8 @@ router.get('/product/orders', authToken, async (req, res) => {
                 "sellerDetail.name":1,
                 "sellerDetail.phone":1,
                 "sellerDetail.address":1,
+                "productDetail.price":1,
+                statusOrder: 1,
                 quantity: 1,
                 status: 1,
                 requested: 1,
@@ -559,7 +575,7 @@ router.get('/product/orders', authToken, async (req, res) => {
             }
         },
         {
-            $sort: { status: -1, requested: -1 }
+            $sort: { statusOrder: 1, requested: -1 }
         },
     ]);
 
@@ -613,6 +629,8 @@ router.get('/product/request', authToken, async (req, res) => {
                 "buyerDetail.name": 1,
                 "buyerDetail.phone": 1,
                 "buyerDetail.address": 1,
+                "buyerDetail.role": 1,
+                "productDetail.price": 1,
                 quantity: 1,
                 status: 1,
                 requested: 1,

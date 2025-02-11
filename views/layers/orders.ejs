@@ -2,7 +2,7 @@
   <header class="header">
       <h1>Orders</h1>
   </header>
-  <div class="search-bar-container">
+  <div class="search-bar-container" id="searchbar">
       <input type="text" id="filterProduct" placeholder="Search by Name">
       <input type="text" id="filterName" placeholder="Search by Seller">
       <input type="text" id="filterPlace" placeholder="Search by Place">
@@ -55,6 +55,7 @@
         <!-- Product Details -->
         <div class="pop-product-details">
             <p class="price" id="popupRequestedQuantity"></p>
+            <p class="price" id="popupProductPrice"></p>
             <div class="seller-info">
                 <h3>Seller Information</h3>
                 <p id="popupSellerName"></p>
@@ -70,6 +71,8 @@
 </main>
 
 <script>
+
+    document.getElementById("searchbar").style.display = 'none';
 
     document.addEventListener('DOMContentLoaded', () => {
         const productPopup = document.getElementById('productPopup');
@@ -87,6 +90,7 @@
         const popupSellerContact = document.getElementById('popupSellerContact');
         const popupSellerAddress = document.getElementById('popupSellerAddress');
         const requestQuantity = document.getElementById('popupRequestedQuantity');
+        const productPrice = document.getElementById('popupProductPrice');
         const productPhoto = document.getElementById('product-photo');
         const sellerPhoto = document.getElementById('seller-photo');
         const code = document.getElementById('code');
@@ -135,6 +139,7 @@
             product_name.textContent = order.productDetail.name;
             seller_name.textContent = order.sellerDetail.name;
             requestQuantity.textContent = `Requested Quantity (kg): ${order.quantity}`;
+            productPrice.textContent = `Product Price (Rs): ${order.productDetail.price}`;
             popupSellerName.textContent = "Name: "+order.sellerDetail.name;
             popupSellerContact.textContent = "Contact: "+order.sellerDetail.phone;
             popupSellerAddress.textContent = "Address: "+order.sellerDetail.address;
