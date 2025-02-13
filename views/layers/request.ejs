@@ -141,7 +141,7 @@
                 stage1.classList.add("show");
             } else if(status === 'accepted') {
                 seenbtn.style.display = 'block';
-            } else if(status === 'completed') {
+            } else if(status === 'completed' || status === 'rejected') {
                 rejectbtn.style.display = 'none';
                 stage1.classList.remove("show");
                 seenbtn.style.display = 'none';

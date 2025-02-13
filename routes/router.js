@@ -117,7 +117,11 @@ router.post("/setpass", async (req, res) => {
             return res.status(404).send("Session Expired. <a href='/'>Click to Back</a>");
         }
 
-        res.status(200).send("Password updated successfully... <a href='/dashboard/home'>Click to Dashboard</a>");
+        // res.status(200).send("Password updated successfully... <a href='/dashboard/home'>Click to Dashboard</a>");
+        req.session.message = {
+            message : "Success",
+        };
+        res.redirect("/dashboard/home");
     } catch(error) {
         console.log(error);
         res.status(404).send("Update Process Failed...");
@@ -139,7 +143,8 @@ router.post("/update_profile", authToken, async (req, res) => {
         if(!updateUser) {
             return res.status(404).send("User not found.");
         }
-        res.status(200).send("Profile Updated Successfully... <a href='/dashboard/profile'>Click to Dashboard</a>");
+        // res.status(200).send("Profile Updated Successfully... <a href='/dashboard/profile'>Click to Dashboard</a>");
+        res.redirect("/dashboard/profile")
 
     } catch (error) {
         console.log(error);
@@ -158,7 +163,8 @@ router.post('/upload_photo', authToken, upload, async (req, res) => {
             if(!updatePhoto){
                 return res.status(401).send("No User found... <a href='/dashboard/home'>Click to Dashboard</a>")
             }
-            res.status(200).send("Photo has been Updated... <a href='/dashboard/home'>Click to Dashboard</a>")
+            // res.status(200).send("Photo has been Updated... <a href='/dashboard/home'>Click to Dashboard</a>")
+            res.redirect('/dashboard/home');
             if(req.auth_user.photo){
                 try{
                     fs.unlinkSync("./public"+req.body.old_image);
@@ -189,7 +195,8 @@ router.post('/addproduct', authToken, upload, async (req, res) => {
             last_updated: currentDate,
         });
         await product.save();
-        res.status(200).send("Product has been Uploaded... <a href='/dashboard/product'>Click here</a>")
+        // res.status(200).send("Product has been Uploaded... <a href='/dashboard/product'>Click here</a>")
+        res.redirect('/dashboard/product');
     } catch (error) {
         console.log(error);
     }
@@ -211,7 +218,8 @@ router.post('/product/update', authToken, async (req, res) => {
             return res.status(401).send("No Product found... <a href='/dashboard/product/own'>Click to Products</a>")
         }
 
-        res.status(200).send("Product Updated Successfully... <a href='/dashboard/product/own'>Click to Dashboard</a>");
+        // res.status(200).send("Product Updated Successfully... <a href='/dashboard/product/own'>Click to Dashboard</a>");
+        res.redirect('/dashboard/product/own');
 
     } catch (error) {
         console.log(error);
@@ -227,6 +235,7 @@ router.post('/product/order', authToken, async (req, res) => {
             return res.send("Something went wrong in sending request");
         }
         const currentDate = getDate();
+        const expire = Date.now() + 1*60*1000;
         const product = await Product.findById(req.body.productId, { seller: 1, quantity: 1, ordered: 1 });
         const order = new Order({
             product: product._id,
@@ -234,6 +243,7 @@ router.post('/product/order', authToken, async (req, res) => {
             buyer: req.auth_user._id,
             quantity: req.body.quantity,
             requested: currentDate,
+            expire: expire,
         });
         const updated = String(parseFloat(product.ordered) + (parseFloat(order.quantity)));
         if(parseFloat(updated) > parseFloat(product.quantity)){
@@ -403,6 +413,35 @@ async function authToken(req, res, next){
     }
 }
 
+async function updateExpire(){
+    try{
+        const currentTime = Date.now();
+        const updated = await Order.find(
+            { expire: { $lt: currentTime }, status: { $ne: "rejected" } },
+        );
+        if(updated.length > 0){
+            for (const order of updated){
+                await Order.updateOne({_id: order._id}, {$set:{status:"rejected"}});
+
+                const product = await Product.findById(order.product, { ordered: 1});
+                // const updateQuantity = String(parseFloat(product.quantity) + (parseFloat(order.quantity)));
+                const updateOrdered = String(parseFloat(product.ordered) - (parseFloat(order.quantity)));
+                await Product.updateOne({_id: product._id},
+                    {
+                        ordered: updateOrdered,
+                    }
+                );
+            }
+        }
+        await Order.updateMany({status: "rejected"}, {$unset:{expire:1}});
+        await Order.updateMany({status: "completed"}, {$unset:{code:1}});
+        await Order.updateMany({status: "accepted"}, {$unset:{expire:1}});
+        return updated;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 //----------------------------------------------------------------------------------------------------------------
 
 router.get("/", (req, res) => {
@@ -515,6 +554,7 @@ router.get('/dashboard/product/add', authToken, (req, res) => {
 
 router.get('/dashboard/product/own', authToken, async (req, res) => {
     const user = req.auth_user;
+    await updateExpire();
     const products = await Product.find({ seller: user._id });
     res.render('dashboard', {
         head: head_name, title: "Dashboard", user, board: "ownProduct", products
@@ -523,6 +563,7 @@ router.get('/dashboard/product/own', authToken, async (req, res) => {
 
 router.get('/product/orders', authToken, async (req, res) => {
     const user = req.auth_user;
+    await updateExpire();
     const orders = await Order.aggregate([
         { $match: {buyer: user._id} },
         {
@@ -586,6 +627,7 @@ router.get('/product/orders', authToken, async (req, res) => {
 
 router.get('/product/request', authToken, async (req, res) => {
     const user = req.auth_user;
+    await updateExpire();
     const requests = await Order.aggregate([
         { $match: {seller: user._id}},
         {

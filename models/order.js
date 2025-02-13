@@ -27,6 +27,9 @@ const orderScheme = new mongoose.Schema({
     },
     code: {
         type: String,
+    },
+    expire: {
+        type: Number,
     }
 });
 
