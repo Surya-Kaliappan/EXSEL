@@ -15,7 +15,7 @@
             if(!(product.seller == user._id) && !(product.quantity == product.ordered)) { %>
             <div class="product-card" data-id="<%- product._id %>" data-key="<%= key %>" data-sel="<%- product.seller %>">
                 <div class="product-photo">
-                    <img src="/uploads/<%- product.photo %>" alt="<%- product.name%>" >
+                    <img src="/img/<%- product.photo %>" alt="<%- product.name%>" >
                 </div>
                 <div class="product-details">
                     <h3 id="product-name"><%- product.name %></h3>
