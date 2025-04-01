@@ -51,7 +51,7 @@
                         <label for="">Password</label>
                     </div>
                 </div>
-            <button onclick="validate()">Next</button>
+                <button type="button" onclick="validate()">Next</button>
             <div class="register">
                 <p>Already have an account?&nbsp;<a href="/">Login</a></p>
             </div>
@@ -107,17 +107,21 @@
             }
         }
 
-        function validate(){
+        function validate() {
             const email = document.getElementById("email").value.trim();
             const name = document.getElementById("name").value.trim();
             const pass = document.getElementById("pass").value.trim();
             const btn = document.getElementById("submit");
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if(emailRegex.test(email) && email!="" && pass!="" && name!=""){
-                next_state();
-                btn.disabled = false;
+          
+            if (emailRegex.test(email) && email !== "" && pass !== "" && name !== "") {
+              next_state();
+              btn.disabled = false;
+            } else {
+              alert("Please fill valid details");
             }
-        }
+          }
+          
 
         var x = document.getElementById("detail");
         var y = document.getElementById("role");

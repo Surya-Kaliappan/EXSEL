@@ -45,6 +45,7 @@ app.set('view engine', 'ejs');
 // router prefix
 
 app.use("", require("./routes/router"));
+app.use("/admin", require("./routes/admin"));
 
 app.listen(PORT, () => {
     console.log(`In Local Machine http://localhost:${PORT}`);

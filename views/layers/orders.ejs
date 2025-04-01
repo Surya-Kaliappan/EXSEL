@@ -16,7 +16,7 @@
         } else { photo = "/uploads/"+order.sellerDetail.photo; } %>
           <div class="product-card" data-id="<%- order._id %>" data-key="<%= key %>">
               <div class="product-photo">
-                  <img src="/uploads/<%- order.productDetail.photo %>" alt="<%- order.productDetail.name%>" >
+                  <img src="/img/<%- order.productDetail.photo %>" alt="<%- order.productDetail.name%>" >
                   <h1>&nbsp;~&nbsp;</h1>
                   <img src="<%= photo %>" alt="<%- order.sellerDetail.name%>" >
               </div>

@@ -12,7 +12,7 @@ const os = require('os');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const fs = require("fs");
-
+const Admin = require("../models/admin");
 // image upload
 
 var storage = multer.diskStorage({
@@ -34,33 +34,74 @@ router.use(cookieParser());
 const head_name = process.env.HEAD;
 // const secret_key = 'something';
 
-router.post('/register', async (req, res) => {
-    try{
-        const salt = await bcrypt.genSalt(10);
-        const user = new User({
-            name: req.body.name,
-            email: req.body.email,
-            pass: await bcrypt.hash(req.body.pass, salt),
-            address: req.body.address,
-            phone: req.body.phone,
-            role: req.body.role
-        });
 
-        await user.save();
-        // req.session.message = {};
-        res.status(200).send("Successfully Registered... <a href='/'>Click to Login</a>")
-    } catch (error) {
-        // res.json({});
-        console.log(error);
+router.post('/register', async (req, res) => {
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPass = await bcrypt.hash(req.body.pass, salt);
+
+    const user = new User({
+      name: req.body.name,
+      email: req.body.email,
+      pass: hashedPass,
+      address: req.body.address,
+      phone: req.body.phone,
+      role: req.body.role,
+    });
+
+    const savedUser = await user.save();
+
+    // Now update Admin database
+    const admin = await Admin.findOne(); // Assuming you have only 1 admin
+    if(admin){
+
+        if (admin) {
+            if (savedUser.role === "customer") {
+              admin.users.push(savedUser._id);
+            } else if (savedUser.role === "farmer") {
+              admin.farmers.push(savedUser._id);
+            }
+            await admin.save();
+          } else {
+            console.log('Admin record not found!');
+          }
     }
+
+    return res.redirect('/');
+
+  } catch (error) {
+    console.log(error);
+    if (!res.headersSent) {
+      res.redirect('/index');
+    }
+  }
 });
 
 router.post('/auth', async (req,res) => {
     try{
-        const {email, pass} = req.body; 
+        const {email, pass} = req.body;
+        const admin = await Admin.findOne({email});
+        if(admin){
+            if(await bcrypt.compare(pass, admin.password)) {
+                const token = jwt.sign(
+                    {userId: admin._id}, process.env.BYTPASS,
+                    { expiresIn: process.env.JWTEXP}
+                );
+                res.cookie('json', token, {
+                    httpOnly: true,
+                    secure: false,
+                    sameSite: 'strict',
+                    maxAge: process.env.COOEXP * 60 * 60 * 1000,
+                });
+                return res.redirect('/admin/dashboard');
+            } else {
+                return res.status(401).send("Invalid Password... <a href='/'>Back to Login</a>");
+            }
+        }
         const user = await User.findOne({ email: email }).exec();
         if (!user) {
-            return res.status(404).send("User not found... <a href='/'>Back to Login</a>");
+            return res.redirect('/');
+           // return res.status(404).send("User not found... <a href='/'>Back to Login</a>");
         }
         if(await bcrypt.compare(pass, user.pass)) {
             const token = jwt.sign(
@@ -73,9 +114,9 @@ router.post('/auth', async (req,res) => {
                 sameSite: 'strict',
                 maxAge: process.env.COOEXP * 60 * 60 * 1000,
             });
-            res.redirect('/dashboard/home');
+            return res.redirect('/dashboard/home');
         } else {
-            res.status(401).send("Invalid Password... <a href='/'>Back to Login</a>");
+            return res.status(401).send("Invalid Password... <a href='/'>Back to Login</a>");
         }
     } catch (error) {
         console.log(error);
@@ -194,8 +235,13 @@ router.post('/addproduct', authToken, upload, async (req, res) => {
             created: currentDate,
             last_updated: currentDate,
         });
-        await product.save();
+        const prod = await product.save();
         // res.status(200).send("Product has been Uploaded... <a href='/dashboard/product'>Click here</a>")
+        const admin = await Admin.findOne();
+        if(admin){
+            admin.products.push(prod._id);
+        }
+        await admin.save();
         res.redirect('/dashboard/product');
     } catch (error) {
         console.log(error);
